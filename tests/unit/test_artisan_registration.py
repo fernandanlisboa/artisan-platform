@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import Mock
 import uuid
 from app.application.services.user_registration_service import UserRegistrationService
@@ -7,6 +6,7 @@ from app.domain.repositories.artisan_repository_interface import IArtisanReposit
 from app.domain.models.user import UserEntity as User 
 from app.domain.models.artisan import ArtisanEntity as Artisan
 
+from tests.unit.mock_data import MockArtisanEntity
 class TestArtisanRegistration:
   
   def test_register_artisan_successfully(self):
