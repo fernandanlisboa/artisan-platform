@@ -1,5 +1,8 @@
 Flask
 python-dotenv
-Flask-SQLAlchemy  # Mesmo que não conectemos ainda, é bom já ter
+Flask-SQLAlchemy
 PyJWT
 bcrypt
+mysqlclient
+pymysql
+alembic
