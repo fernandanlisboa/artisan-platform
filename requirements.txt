@@ -6,3 +6,4 @@ bcrypt
 mysqlclient
 pymysql
 alembic
+pytest
