@@ -11,7 +11,7 @@ db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-
+    
     # Flask configurations
     app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
@@ -47,5 +47,7 @@ def create_app():
             except Exception as e: # Other unexpected errors
                 print(f"UNEXPECTED ERROR while trying to connect to the database: {e}")
                 print("ACTION: Check general settings and application logs.")
-        
+    
+    from app.presentation.controllers.auth_controller import auth_bp 
+    app.register_blueprint(auth_bp, url_prefix='/api') 
     return app
