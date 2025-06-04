@@ -3,6 +3,5 @@ python-dotenv
 Flask-SQLAlchemy
 PyJWT
 bcrypt
-mysqlclient
 pymysql
 alembic
