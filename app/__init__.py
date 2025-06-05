@@ -5,9 +5,17 @@ from dotenv import load_dotenv
 import os 
 from sqlalchemy.exc import OperationalError, InterfaceError, ArgumentError # SQLAlchemy exceptions
 from sqlalchemy import text
+from flask_restx import Api
+
 load_dotenv()
 
 db = SQLAlchemy()
+api = Api( # <--- A instância da sua API global
+    version='1.0',
+    title='Plataforma de Artesãos API',
+    description='API para gerenciar artesãos, compradores e produtos.',
+    doc='/swagger-ui/' # Define a URL para o Swagger UI
+)
 
 def create_app():
     app = Flask(__name__)
@@ -47,7 +55,8 @@ def create_app():
             except Exception as e: # Other unexpected errors
                 print(f"UNEXPECTED ERROR while trying to connect to the database: {e}")
                 print("ACTION: Check general settings and application logs.")
+    api.init_app(app)
     
-    from app.presentation.controllers.auth_controller import auth_bp 
-    app.register_blueprint(auth_bp, url_prefix='/api') 
+    from app.presentation.controllers.auth_controller import auth_ns 
+    api.add_namespace(auth_ns, path='/api')
     return app
