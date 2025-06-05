@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 class UserEntity(ABC):
-    def __init__(self, user_id, email, password, status, address_id=None):
+    def __init__(self, email, password, status, user_id: Optional[str] = None, address_id: Optional[str] = None):
         self.user_id = user_id
         self.email = email
         self.password = password # Aqui seria a senha limpa, antes do hash
@@ -10,3 +11,6 @@ class UserEntity(ABC):
         
         # Hash the password during entity creation
         # self.password_hash = self._hash_password(password)
+        
+    def __repr__(self):
+        return f"UserEntity(user_id={self.user_id}, email={self.email}, status={self.status}, address_id={self.address_id})"
