@@ -10,3 +10,6 @@ class ArtisanEntity():
         self.phone = phone
         self.store_name = store_name
         self.bio = bio
+        
+    def __repr__(self):
+        return f"ArtisanEntity(artisan_id={self.artisan_id}, store_name={self.store_name}, phone={self.phone}, bio={self.bio})"
