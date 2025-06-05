@@ -20,12 +20,13 @@ class ArtisanRepository(IArtisanRepository):
             bio=artisan_entity.bio,
         )
         
-        # Persistence
-        existing_user = db.session.query(ArtisanDBModel).get(artisan_db_model.artisan_id)
-        if existing_user:
-            db.session.merge(artisan_db_model) 
-        else:
-            db.session.add(artisan_db_model) 
+        print("Artisan DB Model: ", artisan_db_model)
+        try:
+            db.session.add(artisan_db_model)
+            db.session.commit()
+        except Exception as e:
+            print(f"Error saving artisan: {e}")
+            db.session.rollback()
         
-        db.session.commit()
-        return artisan_entity # Returns the pure entity that was saved
+        print("Artisan Entity after save: ", artisan_entity)
+        return artisan_entity # Retorna a entidade pura que foi salva

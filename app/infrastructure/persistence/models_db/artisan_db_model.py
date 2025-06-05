@@ -15,5 +15,11 @@ class ArtisanDBModel(db.Model):
     user = relationship('UserDBModel', back_populates='artisan')
     products = relationship('ProductDBModel', back_populates='artisan')
 
+    def __init__(self, artisan_id, store_name, bio=None, phone=None, status='active'):
+        self.artisan_id = artisan_id
+        self.store_name = store_name
+        self.bio = bio
+        self.phone = phone
+        self.status = status
     def __repr__(self):
         return f"<ArtisanDBModel(id='{self.artisan_id}', store='{self.store_name}')>"
