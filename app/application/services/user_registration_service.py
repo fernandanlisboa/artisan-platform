@@ -17,9 +17,10 @@ class UserRegistrationService:
         self.artisan_repository = artisan_repository
         self.address_repository = address_repository
         self.buyer_repository = buyer_repository # NOVO: atributo
-        # ...
 
-    def register_artisan(self, request_data: RegisterArtisanRequest) -> ArtisanRegistrationResponse:
+
+    def register_artisan(self, request_data: RegisterArtisanRequest) -> ArtisanRegistrationResponse: # NOVO: address_data
+        
         # Se dados de endereço forem fornecidos, crie e salve o endereço
         address_entity = Address(
             address_id=None,  # ID será gerado
@@ -33,7 +34,7 @@ class UserRegistrationService:
             zip_code=request_data.address.zip_code
         )
         print("Address Entity: ", address_entity)
-
+        
         saved_address = self.address_repository.save(address_entity)
         user_entity = User(
             user_id=None,  # ID será gerado
@@ -51,10 +52,9 @@ class UserRegistrationService:
             store_name=request_data.store_name,
             phone=request_data.phone
         )
-
         print("Artisan Entity: ", artisan_entity)
         saved_artisan_entity = self.artisan_repository.save(artisan_entity)
-
+        
         return ArtisanRegistrationResponse.from_domain_entities(saved_artisan_entity, saved_user_entity, saved_address)
 
     def register_buyer(self, request_data: RegisterBuyerRequest) -> BuyerRegistrationResponse:
@@ -98,3 +98,5 @@ class UserRegistrationService:
         saved_buyer_entity = self.buyer_repository.save(buyer_entity)
 
         return BuyerRegistrationResponse.from_domain_entities(saved_buyer_entity, saved_user_entity, saved_address)
+        
+        

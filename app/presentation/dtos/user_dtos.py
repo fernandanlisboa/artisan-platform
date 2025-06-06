@@ -72,6 +72,11 @@ class ArtisanRegistrationResponse(BaseModel):
         # Se estiver usando entidades de domínio puras, um método factory é mais explícito.
         pass
 
+    # Método para criar o DTO a partir de suas entidades de domínio
+    # Você precisará adaptar isso com base em como suas entidades UserEntity, ArtisanEntity, e AddressEntity estão estruturadas
+    # e como elas se relacionam.
+    # Vamos supor que você tenha uma ArtisanEntity que contém ou tem acesso a UserEntity e AddressEntity.
+
     @classmethod
     def from_domain_entities(cls, artisan_entity: ArtisanEntity, user_entity: UserEntity, address_entity: Optional[AddressEntity]):
         """
@@ -103,7 +108,7 @@ class ArtisanRegistrationResponse(BaseModel):
             address=address_response_data
         )
  
- class RegisterBuyerRequest(BaseModel):
+class RegisterBuyerRequest(BaseModel):
     """DTO para a requisição de registro de um comprador, com endereço aninhado."""
     email: str = Field(..., example="buyer@example.com", max_length=120)
     password: str = Field(..., min_length=8, max_length=64)

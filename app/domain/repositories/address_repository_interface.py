@@ -17,3 +17,5 @@ class IAddressRepository(ABC):
     def get_by_id(self, address_id: str) -> Optional[AddressEntity]:
         """Gets an Address entity by its ID."""
         pass
+    
+    # Add other abstract methods as needed (e.g., find_by_zip_code, delete)
