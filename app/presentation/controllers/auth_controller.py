@@ -14,7 +14,7 @@ Converter a User entity para um UserResponse DTO.
 Retornar uma resposta HTTP 201 Created com o corpo JSON contendo os dados do UserResponse.
 Capturar quaisquer erros inesperados (Exception) e retornar 500 Internal Server Error.
 """
-
+#TODO separar em dois controladores, um para artesão e outro para comprador
 # app/presentation/controllers/auth_controller.py
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
