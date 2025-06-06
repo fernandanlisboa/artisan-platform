@@ -11,7 +11,7 @@ from dotenv import load_dotenv # Import to load .env
 import os # Import to access environment variables
 
 from app import db 
-import app.infrastructure.persistence.models_db # Garante que os modelos ORM sejam carregados
+# import app.infrastructure.persistence.models_db # Garante que os modelos ORM sejam carregados
 
 # --- ADICIONE ESTES IMPORTS EXPLÍCITOS PARA CADA UM DOS SEUS MODELOS DB ---
 from app.infrastructure.persistence.models_db.address_db_model import AddressDBModel
@@ -48,6 +48,9 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        compare_type=True,             
+        compare_server_default=True,   
+        render_as_batch=True
     )
 
     with context.begin_transaction():
@@ -90,7 +93,10 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection, target_metadata=target_metadata,
+            compare_type=True,             # Bom ter
+            compare_server_default=True,   # <--- VERIFIQUE/ADICIONE ESTA LINHA
+            render_as_batch=True,  # Necessário para MySQL
         )
 
         with context.begin_transaction():

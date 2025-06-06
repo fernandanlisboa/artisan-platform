@@ -5,3 +5,5 @@ PyJWT
 bcrypt
 pymysql
 alembic
+pytest
+pydantic
