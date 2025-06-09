@@ -18,4 +18,7 @@ class IAddressRepository(ABC):
         """Gets an Address entity by its ID."""
         pass
     
-    # Add other abstract methods as needed (e.g., find_by_zip_code, delete)
+    @abstractmethod
+    def get_by_attributes(self, address_entity: AddressEntity) -> Optional[AddressEntity]:
+        """Gets an Address entity by its zip code."""
+        pass

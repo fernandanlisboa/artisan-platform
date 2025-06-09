@@ -52,3 +52,10 @@ class AddressRepository(IAddressRepository):
                 zip_code=address_db_model.zip_code
             )
         return None
+    
+    def get_by_attributes(self, address_entity: Address) -> Optional[Address]:
+        """Gets an Address entity by its zip code."""
+        filter_criteria = address_entity.to_filter_dict()
+        query = AddressDBModel.query.filter_by(**filter_criteria)
+        
+        return query.first()
