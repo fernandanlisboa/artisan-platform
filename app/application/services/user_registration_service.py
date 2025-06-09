@@ -15,6 +15,7 @@ class UserRegistrationService:
         # ...
     
     def __check_password_validity(self, password: str) -> tuple[bool, str]:
+        #TODO: add error classes for better error handling
         """
         Check if the password meets the required criteria.
         Returns (is_valid, error_message).
@@ -37,7 +38,7 @@ class UserRegistrationService:
         return True, ""
     
     def register_artisan(self, request_data: RegisterArtisanRequest) -> ArtisanRegistrationResponse: # NOVO: address_data
-        
+        #TODO: add error classes for better error handling
         address_entity = Address(
             address_id=None,  # ID será gerado
             street=request_data.address.street,
