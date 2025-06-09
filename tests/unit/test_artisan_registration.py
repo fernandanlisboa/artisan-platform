@@ -1,3 +1,4 @@
+import pytest
 from unittest.mock import Mock, patch
 import uuid
 from app.application.services.user_registration_service import UserRegistrationService
@@ -215,6 +216,68 @@ class TestArtisanRegistration:
         saved_user_arg = mock_user_repository.save.call_args[0][0]
         assert saved_user_arg.address_id == address_id
 
-    #TODO registro com email ja existente
+    def test_register_artisan_with_existing_email(self):
+        # Create mock repositories
+        mock_user_repository = Mock(spec=IUserRepository)
+        mock_artisan_repository = Mock(spec=IArtisanRepository)
+        mock_address_repository = Mock(spec=IAddressRepository)
+        
+        # Create the service with mock repositories
+        service = UserRegistrationService(
+            user_repository=mock_user_repository,
+            artisan_repository=mock_artisan_repository,
+            address_repository=mock_address_repository,
+        )
+        
+        # Configure user_repository.get_by_email to return an existing user
+        existing_user = MockUserEntity(
+            user_id=str(uuid.uuid4()),
+            email='test@artisan.com',
+            password='ExistingPassword123',
+            status='active'
+        )
+        mock_user_repository.get_by_email.return_value = existing_user
+        
+        # Create address request
+        address_request = RegisterAddressRequest(
+            street="Artisan Street",
+            number="456",
+            complement="Studio 7",
+            neighborhood="Craft District",
+            city="Artville",
+            state="AR",
+            zip_code="54321-876",
+            country="Artland"
+        )
+        
+        # Create artisan request with email que já existe
+        artisan_data = {
+            'email': 'test@artisan.com',  # Email que já existe
+            'password': 'SecurePassword123',
+            'store_name': 'My Test Shop',
+            'phone': '1234567890',
+            'bio': 'Handmade goods',
+            'address': address_request
+        }
+        
+        # Convert to DTO object
+        artisan_request = RegisterArtisanRequest(**artisan_data)
+        
+        # Call the service method and expect ValueError
+        with pytest.raises(ValueError) as excinfo:
+            service.register_artisan(artisan_request)
+        
+        # Verify error message
+        assert "Email already registered" in str(excinfo.value)
+        
+        # Verify repository calls
+        mock_user_repository.get_by_email.assert_called_once_with('test@artisan.com')
+        
+        # Estes métodos NÃO devem ser chamados, pois o registro falha na validação de email
+        mock_address_repository.get_by_attributes.assert_not_called()
+        mock_address_repository.save.assert_not_called()
+        mock_user_repository.save.assert_not_called()
+        mock_artisan_repository.save.assert_not_called()
+      
     #TODO registro com senha fraca
     #TODO registro com dados inválidos (store_name, phone, bio)
