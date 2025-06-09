@@ -35,8 +35,10 @@ class UserRegistrationService:
         else:
             saved_address = self.address_repository.save(address_entity)
             print("New address saved: ", saved_address)
+        
         #check email already exists
-        #check if the password is valid
+        if self.user_repository.get_by_email(request_data.email) is None:
+            raise ValueError("Email already registered.")
         
         user_entity = User(
             user_id=None,  # ID será gerado
@@ -46,6 +48,9 @@ class UserRegistrationService:
             address_id=saved_address.address_id,  # Inicialmente None, será atualizado após salvar o endereço
         )
         print("User Entity: ", user_entity)
+        
+        
+        #check if the password is valid
         saved_user_entity = self.user_repository.save(user_entity) # Salva o usuário (agora com address_id)
         #check phone
         artisan_entity = ArtisanEntity(
