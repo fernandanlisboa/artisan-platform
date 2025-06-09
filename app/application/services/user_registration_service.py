@@ -8,11 +8,28 @@ from app.presentation.dtos.user_dtos import RegisterArtisanRequest, ArtisanRegis
 from app.domain.models.user import UserEntity as User # Importe a entidade pura User
 from app.domain.models.artisan import ArtisanEntity # Importe a entidade pura Artisan
 class UserRegistrationService:
-    def __init__(self, user_repository: IUserRepository, artisan_repository: IArtisanRepository, address_repository: IAddressRepository): # NOVO: address_repository
+    """
+    Service responsible for user registration in the platform.
+    
+    This service manages the registration flow for artisans and buyers,
+    performing data validation, creating entities, and persisting them
+    through appropriate repositories.
+    """
+    
+    def __init__(self, user_repository: IUserRepository, artisan_repository: IArtisanRepository, address_repository: IAddressRepository, buyer_repository=None):
+        """
+        Initialize the registration service with required repositories.
+        
+        Args:
+            user_repository: Repository for user operations
+            artisan_repository: Repository for artisan operations
+            address_repository: Repository for address operations
+            buyer_repository: Repository for buyer operations (optional)
+        """
         self.user_repository = user_repository
         self.artisan_repository = artisan_repository
-        self.address_repository = address_repository # NOVO: atributo
-        # ...
+        self.address_repository = address_repository
+        self.buyer_repository = buyer_repository
     
     def __check_password_validity(self, password: str) -> tuple[bool, str]:
         #TODO: add error classes for better error handling
@@ -37,7 +54,25 @@ class UserRegistrationService:
         
         return True, ""
     
-    def register_artisan(self, request_data: RegisterArtisanRequest) -> ArtisanRegistrationResponse: # NOVO: address_data
+    def register_artisan(self, request_data: RegisterArtisanRequest) -> ArtisanRegistrationResponse:
+        """
+        Register a new artisan in the platform.
+        
+        Implements the complete artisan registration flow:
+        1. Checks if the address already exists or creates a new one
+        2. Validates if the email is already registered
+        3. Verifies password strength
+        4. Creates and persists user and artisan entities
+        
+        Args:
+            request_data: DTO containing the artisan registration data
+            
+        Returns:
+            ArtisanRegistrationResponse: DTO with the registered artisan data
+            
+        Raises:
+            ValueError: If the email is already registered or the password is invalid
+        """
         #TODO: add error classes for better error handling
         address_entity = Address(
             address_id=None,  # ID será gerado
