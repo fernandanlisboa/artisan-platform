@@ -13,7 +13,29 @@ class UserRegistrationService:
         self.artisan_repository = artisan_repository
         self.address_repository = address_repository # NOVO: atributo
         # ...
-
+    
+    def __check_password_validity(self, password: str) -> tuple[bool, str]:
+        """
+        Check if the password meets the required criteria.
+        Returns (is_valid, error_message).
+        """
+        if len(password) < 8:
+            return False, "Password must be at least 8 characters long"
+        
+        if not any(char.isdigit() for char in password):
+            return False, "Password must contain at least one number"
+        
+        if not any(char.islower() for char in password):
+            return False, "Password must contain at least one lowercase letter"
+        
+        if not any(char.isupper() for char in password):
+            return False, "Password must contain at least one uppercase letter"
+        
+        if not any(not char.isalnum() for char in password):
+            return False, "Password must contain at least one special character"
+        
+        return True, ""
+    
     def register_artisan(self, request_data: RegisterArtisanRequest) -> ArtisanRegistrationResponse: # NOVO: address_data
         
         address_entity = Address(
@@ -37,7 +59,7 @@ class UserRegistrationService:
             print("New address saved: ", saved_address)
         
         #check email already exists
-        if self.user_repository.get_by_email(request_data.email) is None:
+        if self.user_repository.get_by_email(request_data.email) is not None:
             raise ValueError("Email already registered.")
         
         user_entity = User(
@@ -51,7 +73,12 @@ class UserRegistrationService:
         
         
         #check if the password is valid
-        saved_user_entity = self.user_repository.save(user_entity) # Salva o usuário (agora com address_id)
+        is_valid, error_message = self.__check_password_validity(request_data.password)
+        if not is_valid:
+            raise ValueError(error_message)
+        
+        saved_user_entity = self.user_repository.save(user_entity)
+        
         #check phone
         artisan_entity = ArtisanEntity(
             artisan_id=saved_user_entity.user_id,
