@@ -16,7 +16,6 @@ class UserRegistrationService:
 
     def register_artisan(self, request_data: RegisterArtisanRequest) -> ArtisanRegistrationResponse: # NOVO: address_data
         
-        # Se dados de endereço forem fornecidos, crie e salve o endereço
         address_entity = Address(
             address_id=None,  # ID será gerado
             street=request_data.address.street,
@@ -29,8 +28,16 @@ class UserRegistrationService:
             zip_code=request_data.address.zip_code
         )
         print("Address Entity: ", address_entity)
+        #check if the address already exists
+        saved_address = self.address_repository.get_by_attributes(address_entity)
+        if saved_address:
+            print("Address already exists, using existing address.")
+        else:
+            saved_address = self.address_repository.save(address_entity)
+            print("New address saved: ", saved_address)
+        #check email already exists
+        #check if the password is valid
         
-        saved_address = self.address_repository.save(address_entity)
         user_entity = User(
             user_id=None,  # ID será gerado
             email=request_data.email,
@@ -40,7 +47,7 @@ class UserRegistrationService:
         )
         print("User Entity: ", user_entity)
         saved_user_entity = self.user_repository.save(user_entity) # Salva o usuário (agora com address_id)
-
+        #check phone
         artisan_entity = ArtisanEntity(
             artisan_id=saved_user_entity.user_id,
             bio=request_data.bio,
