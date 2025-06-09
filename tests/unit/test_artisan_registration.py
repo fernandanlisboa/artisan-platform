@@ -278,6 +278,77 @@ class TestArtisanRegistration:
         mock_address_repository.save.assert_not_called()
         mock_user_repository.save.assert_not_called()
         mock_artisan_repository.save.assert_not_called()
-      
-    #TODO registro com senha fraca
+    
+    def test_register_artisan_with_invalid_password(self):
+        """Test that artisan registration fails with various invalid password formats."""
+        # Create mock repositories
+        mock_user_repository = Mock(spec=IUserRepository)
+        mock_artisan_repository = Mock(spec=IArtisanRepository)
+        mock_address_repository = Mock(spec=IAddressRepository)
+        
+        # Create service
+        service = UserRegistrationService(
+            user_repository=mock_user_repository,
+            artisan_repository=mock_artisan_repository,
+            address_repository=mock_address_repository,
+        )
+        
+        # Lista de senhas inválidas e motivos
+        invalid_passwords = [
+            ("short", "too short"),
+            ("onlylowercase123$", "no uppercase letter"),
+            ("ONLYUPPERCASE123$", "no lowercase letter"),
+            ("NoNumbersHere$", "no numbers"),
+            ("NoSpecialChars123", "no special characters")
+        ]
+        
+        # Dados básicos do artesão
+        base_artisan_data = {
+            'email': 'test@artisan.com',
+            'store_name': 'My Test Shop',
+            'phone': '1234567890',
+            'bio': 'Handmade goods',
+            'address': RegisterAddressRequest(
+                street="Test Street",
+                number="123",
+                complement="Studio",
+                neighborhood="Test District",
+                city="Test City",
+                state="TS",
+                zip_code="12345-678",
+                country="Test Country"
+            )
+        }
+        
+        # Testar cada senha inválida
+        for password, reason in invalid_passwords:
+            # Copiar dados básicos e adicionar a senha inválida
+            artisan_data = base_artisan_data.copy()
+            artisan_data['password'] = password
+            
+            # Criar request DTO
+            artisan_request = RegisterArtisanRequest(**artisan_data)
+            
+            # Tentar registro e esperar erro
+            with pytest.raises(ValueError, match=f".*password.*") as excinfo:
+                service.register_artisan(artisan_request)
+            
+            # Verificações específicas por tipo de erro (opcional)
+            error_message = str(excinfo.value).lower()
+            if "too short" in reason:
+                assert "length" in error_message or "characters" in error_message
+            elif "uppercase" in reason:
+                assert "uppercase" in error_message or "capital" in error_message
+            elif "lowercase" in reason:
+                assert "lowercase" in error_message
+            elif "numbers" in reason:
+                assert "number" in error_message or "digit" in error_message
+            elif "special" in reason:
+                assert "special" in error_message or "symbol" in error_message
+        
+        # Verificar que nenhum método de repositório foi chamado
+        mock_user_repository.save.assert_not_called()
+        mock_artisan_repository.save.assert_not_called()
+        mock_address_repository.save.assert_not_called()
+    
     #TODO registro com dados inválidos (store_name, phone, bio)
