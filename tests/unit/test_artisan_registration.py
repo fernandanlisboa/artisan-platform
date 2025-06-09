@@ -16,7 +16,7 @@ class TestArtisanRegistration:
         mock_user_repository = Mock(spec=IUserRepository)
         mock_artisan_repository = Mock(spec=IArtisanRepository)
         mock_address_repository = Mock(spec=IAddressRepository)
-  # Adicionado mock de buyer repository
+        # Adicionado mock de buyer repository
         
         # Create the service with mock repositories
         service = UserRegistrationService(
@@ -117,6 +117,103 @@ class TestArtisanRegistration:
         assert saved_artisan_arg.store_name == 'My Test Shop'
         assert saved_artisan_arg.phone == '1234567890'
     
+    def test_register_artisan_with_existing_address(self):
+        # Create mock repositories
+        mock_user_repository = Mock(spec=IUserRepository)
+        mock_artisan_repository = Mock(spec=IArtisanRepository)
+        mock_address_repository = Mock(spec=IAddressRepository)
+        
+        # Create the service with mock repositories
+        service = UserRegistrationService(
+            user_repository=mock_user_repository,
+            artisan_repository=mock_artisan_repository,
+            address_repository=mock_address_repository,
+        )
+        
+        # Gere IDs específicos que você precisará usar em múltiplos lugares
+        user_id = str(uuid.uuid4())
+        address_id = str(uuid.uuid4())
+        
+        # Create complete mock objects with proper properties
+        mock_existing_address = MockAddressEntity(
+            address_id=address_id,
+            street="Artisan Street",
+            number="456",
+            complement="Studio 7",
+            neighborhood="Craft District",
+            city="Artville",
+            state="AR",
+            zip_code="54321-876",
+            country="Artland"
+        )
+        
+        mock_user = MockUserEntity(
+            user_id=user_id,
+            email='test@artisan.com',
+            password='SecurePassword123',
+            status='active',
+            address_id=address_id
+        )
+        
+        mock_artisan = MockArtisanEntity(
+            artisan_id=user_id,
+            store_name='My Test Shop',
+            phone='1234567890',
+            bio='Handmade goods',
+            status='active'
+        )
+        
+        # Configure mock returns
+        # A diferença principal: get_by_attributes RETORNA um endereço existente
+        mock_address_repository.get_by_attributes.return_value = mock_existing_address
+        
+        # User e Artisan salvos
+        mock_user_repository.save.return_value = mock_user
+        mock_artisan_repository.save.return_value = mock_artisan
+        
+        # Create address request (mesmos dados do endereço existente)
+        address_request = RegisterAddressRequest(
+            street="Artisan Street",
+            number="456",
+            complement="Studio 7",
+            neighborhood="Craft District",
+            city="Artville",
+            state="AR",
+            zip_code="54321-876",
+            country="Artland"
+        )
+        
+        # Create artisan request with nested address
+        artisan_data = {
+            'email': 'test@artisan.com',
+            'password': 'SecurePassword123',
+            'store_name': 'My Test Shop',
+            'phone': '1234567890',
+            'bio': 'Handmade goods',
+            'address': address_request
+        }
+        
+        # Convert to DTO object
+        artisan_request = RegisterArtisanRequest(**artisan_data)
+        
+        # Call the service method
+        response = service.register_artisan(artisan_request)
+        
+        # Assertions
+        assert response.user_id == user_id
+        assert response.email == 'test@artisan.com'
+        assert response.store_name == 'My Test Shop'
+        
+        # Verify repository calls
+        mock_address_repository.get_by_attributes.assert_called_once()
+        # Não deve salvar um novo endereço, pois um já foi encontrado
+        mock_address_repository.save.assert_not_called()
+        mock_user_repository.save.assert_called_once()
+        mock_artisan_repository.save.assert_called_once()
+        
+        # Verificar se o user foi criado com o address_id do endereço existente
+        saved_user_arg = mock_user_repository.save.call_args[0][0]
+        assert saved_user_arg.address_id == address_id
 
     #TODO registro com email ja existente
     #TODO registro com senha fraca
