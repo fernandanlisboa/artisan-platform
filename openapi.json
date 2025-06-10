@@ -1,1 +1,253 @@
-{"swagger": "2.0", "basePath": "/", "paths": {"/api/register/artisan": {"post": {"responses": {"201": {"description": "Success", "schema": {"$ref": "#/definitions/ArtisanRegistrationResponseOutput"}}}, "summary": "Registers a new artisan", "description": "Register a new artisan user.", "operationId": "post_artisan_registration_resource", "parameters": [{"name": "payload", "required": true, "in": "body", "schema": {"$ref": "#/definitions/RegisterArtisanRequest"}}, {"name": "X-Fields", "in": "header", "type": "string", "format": "mask", "description": "An optional fields mask"}], "tags": ["auth"]}}}, "info": {"title": "Plataforma de Artes\u00e3os API", "version": "1.0", "description": "API para gerenciar artes\u00e3os, compradores e produtos."}, "produces": ["application/json"], "consumes": ["application/json"], "tags": [{"name": "auth", "description": "Authentication related operations"}], "definitions": {"RegisterArtisanRequest": {"required": ["email", "password", "store_name"], "properties": {"email": {"type": "string", "description": "User email", "example": "artisan@example.com"}, "password": {"type": "string", "description": "User password", "minLength": 8}, "store_name": {"type": "string", "description": "Name of the artisan's store", "maxLength": 255}, "phone": {"type": "string", "description": "Artisan's phone number"}, "bio": {"type": "string", "description": "Artisan's biography"}, "address": {"description": "Optional primary address details for the artisan", "allOf": [{"$ref": "#/definitions/RegisterAddressRequest"}]}}, "type": "object"}, "RegisterAddressRequest": {"required": ["city", "neighborhood", "state", "street", "zip_code"], "properties": {"street": {"type": "string", "description": "Street name", "example": "Rua das Flores", "maxLength": 255}, "number": {"type": "string", "description": "House/building number", "maxLength": 20}, "complement": {"type": "string", "description": "Complementary address info", "maxLength": 100}, "neighborhood": {"type": "string", "description": "Neighborhood", "example": "Centro", "maxLength": 100}, "city": {"type": "string", "description": "City", "example": "Salvador", "maxLength": 100}, "state": {"type": "string", "description": "State abbreviation (e.g., BA)", "maxLength": 2}, "zip_code": {"type": "string", "description": "Postal code (CEP)", "example": "40000-000", "maxLength": 10}, "country": {"type": "string", "description": "Country", "default": "Brasil", "maxLength": 100}}, "type": "object"}, "ArtisanRegistrationResponseOutput": {"required": ["email", "registration_date", "role", "status", "store_name", "user_id"], "properties": {"user_id": {"type": "string", "description": "ID \u00fanico do usu\u00e1rio (que tamb\u00e9m \u00e9 o ID do artes\u00e3o).", "example": "u1b2c3d4-e5f6-7890-1234-567890abcdef"}, "email": {"type": "string", "description": "Email de login do artes\u00e3o.", "example": "artesao@email.com"}, "store_name": {"type": "string", "description": "Nome da loja ou ateli\u00ea do artes\u00e3o.", "example": "Ateli\u00ea M\u00e3os de Ouro"}, "phone": {"type": "string", "description": "Telefone de contato do artes\u00e3o.", "example": "71999998888"}, "bio": {"type": "string", "description": "Biografia ou descri\u00e7\u00e3o do trabalho do artes\u00e3o.", "example": "Crio pe\u00e7as \u00fanicas em cer\u00e2mica, inspiradas na natureza local."}, "registration_date": {"type": "string", "format": "date-time", "description": "Data e hora em que o usu\u00e1rio foi registrado."}, "status": {"type": "string", "description": "Status atual da conta do usu\u00e1rio (ex: active, pending_verification).", "example": "active"}, "role": {"type": "string", "description": "Papel do usu\u00e1rio no sistema.", "default": "artisan", "example": "artisan"}, "address": {"description": "Endere\u00e7o principal associado ao artes\u00e3o.", "allOf": [{"$ref": "#/definitions/AddressResponseOutput"}]}}, "type": "object"}, "AddressResponseOutput": {"required": ["address_id", "city", "country", "neighborhood", "state", "street", "zip_code"], "properties": {"address_id": {"type": "string", "description": "ID \u00fanico do endere\u00e7o.", "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"}, "street": {"type": "string", "description": "Nome da rua.", "example": "Rua das Palmeiras"}, "number": {"type": "string", "description": "N\u00famero da resid\u00eancia/com\u00e9rcio.", "example": "123A"}, "complement": {"type": "string", "description": "Complemento do endere\u00e7o (ex: Apto, Bloco).", "example": "Apto 4B"}, "neighborhood": {"type": "string", "description": "Bairro.", "example": "Centro"}, "city": {"type": "string", "description": "Cidade.", "example": "Cidade das Artes"}, "state": {"type": "string", "description": "Estado (sigla).", "example": "BA"}, "zip_code": {"type": "string", "description": "CEP.", "example": "40000-000"}, "country": {"type": "string", "description": "Pa\u00eds.", "default": "Brasil", "example": "Brasil"}}, "type": "object"}}, "responses": {"ParseError": {"description": "When a mask can't be parsed"}, "MaskError": {"description": "When any error occurs on mask"}}}
+{   
+    "openapi": "3.0.0",
+    "info": {
+    "title": "Plataforma de Artesãos API",
+    "version": "1.0",
+    "description": "API para gerenciar artesãos, compradores e produtos."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000/",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/api/register/artisan": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Registers a new artisan",
+        "description": "Register a new artisan user.",
+        "operationId": "post_artisan_registration_resource",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterArtisanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtisanRegistrationResponseOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RegisterArtisanRequest": {
+        "type": "object",
+        "required": ["email", "password", "store_name"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User email",
+            "example": "artisan@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password",
+            "minLength": 8
+          },
+          "store_name": {
+            "type": "string",
+            "description": "Name of the artisan's store",
+            "maxLength": 255
+          },
+          "phone": {
+            "type": "string",
+            "description": "Artisan's phone number"
+          },
+          "bio": {
+            "type": "string",
+            "description": "Artisan's biography"
+          },
+          "address": {
+            "description": "Optional primary address details for the artisan",
+            "allOf": [
+              {
+                "$ref": "#/definitions/RegisterAddressRequest"
+              }
+            ]
+          }
+        }
+      },
+      "RegisterAddressRequest": {
+        "type": "object",
+        "required": ["city", "neighborhood", "state", "street", "zip_code"],
+        "properties": {
+          "street": {
+            "type": "string",
+            "description": "Street name",
+            "example": "Rua das Flores",
+            "maxLength": 255
+          },
+          "number": {
+            "type": "string",
+            "description": "House/building number",
+            "maxLength": 20
+          },
+          "complement": {
+            "type": "string",
+            "description": "Complementary address info",
+            "maxLength": 100
+          },
+          "neighborhood": {
+            "type": "string",
+            "description": "Neighborhood",
+            "example": "Centro",
+            "maxLength": 100
+          },
+          "city": {
+            "type": "string",
+            "description": "City",
+            "example": "Salvador",
+            "maxLength": 100
+          },
+          "state": {
+            "type": "string",
+            "description": "State abbreviation (e.g., BA)",
+            "maxLength": 2
+          },
+          "zip_code": {
+            "type": "string",
+            "description": "Postal code (CEP)",
+            "example": "40000-000",
+            "maxLength": 10
+          },
+          "country": {
+            "type": "string",
+            "description": "Country",
+            "default": "Brasil",
+            "maxLength": 100
+          }
+        }
+      },
+      "AddressResponseOutput": {
+        "type": "object",
+        "required": ["address_id", "city", "country", "neighborhood", "state", "street", "zip_code"],
+        "properties": {
+          "address_id": {
+            "type": "string",
+            "description": "ID único do endereço.",
+            "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+          },
+          "street": {
+            "type": "string",
+            "description": "Nome da rua.",
+            "example": "Rua das Palmeiras"
+          },
+          "number": {
+            "type": "string",
+            "description": "Número da residência/comércio.",
+            "example": "123A"
+          },
+          "complement": {
+            "type": "string",
+            "description": "Complemento do endereço (ex: Apto, Bloco).",
+            "example": "Apto 4B"
+          },
+          "neighborhood": {
+            "type": "string",
+            "description": "Bairro.",
+            "example": "Centro"
+          },
+          "city": {
+            "type": "string",
+            "description": "Cidade.",
+            "example": "Cidade das Artes"
+          },
+          "state": {
+            "type": "string",
+            "description": "Estado (sigla).",
+            "example": "BA"
+          },
+          "zip_code": {
+            "type": "string",
+            "description": "CEP.",
+            "example": "40000-000"
+          },
+          "country": {
+            "type": "string",
+            "description": "País.",
+            "default": "Brasil",
+            "example": "Brasil"
+          }
+        }
+      },
+      "ArtisanRegistrationResponseOutput": {
+        "type": "object",
+        "required": ["email", "registration_date", "role", "status", "store_name", "user_id"],
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "ID único do usuário (que também é o ID do artesão).",
+            "example": "u1b2c3d4-e5f6-7890-1234-567890abcdef"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email de login do artesão.",
+            "example": "artesao@email.com"
+          },
+          "store_name": {
+            "type": "string",
+            "description": "Nome da loja ou ateliê do artesão.",
+            "example": "Ateliê Mãos de Ouro"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Telefone de contato do artesão.",
+            "example": "71999998888"
+          },
+          "bio": {
+            "type": "string",
+            "description": "Biografia ou descrição do trabalho do artesão.",
+            "example": "Crio peças únicas em cerâmica, inspiradas na natureza local."
+          },
+          "registration_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data e hora em que o usuário foi registrado."
+          },
+          "status": {
+            "type": "string",
+            "description": "Status atual da conta do usuário (ex: active, pending_verification).",
+            "example": "active"
+          },
+          "role": {
+            "type": "string",
+            "description": "Papel do usuário no sistema.",
+            "default": "artisan",
+            "example": "artisan"
+          },
+          "address": {
+            "description": "Endereço principal associado ao artesão.",
+            "allOf": [
+              {
+                "$ref": "#/definitions/AddressResponseOutput"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "responses": {
+    "ParseError": {
+      "description": "When a mask can't be parsed"
+    },
+    "MaskError": {
+      "description": "When any error occurs on mask"
+    }
+  }
+}
