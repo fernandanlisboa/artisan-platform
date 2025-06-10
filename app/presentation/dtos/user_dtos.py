@@ -105,7 +105,8 @@ class ArtisanRegistrationResponse(BaseModel):
             phone=artisan_entity.phone,
             bio=artisan_entity.bio,
             status=user_entity.status,
-            address=address_response_data
+            address=address_response_data,
+            registration_data=user_entity.registration_date
         )
  
 class RegisterBuyerRequest(BaseModel):

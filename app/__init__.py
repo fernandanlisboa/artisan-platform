@@ -4,11 +4,11 @@ import os
 from app.extensions import db, api
 from app.common.config import config_by_name # <--- Importa o dicionário de configurações
 
-def create_app():
-    # Determina qual ambiente usar. Padrão é 'development' se não for especificado.
-    # O CI/CD irá definir FLASK_ENV=testing no arquivo .env.
-    config_name = os.getenv('FLASK_ENV', 'development')
-
+def create_app(config_name=None):
+    # Use o parâmetro se fornecido, senão use a variável de ambiente
+    if config_name is None:
+        config_name = os.getenv('FLASK_ENV', 'development')
+    
     app = Flask(__name__)
     
     # 1. CARREGA TODA A CONFIGURAÇÃO A PARTIR DO OBJETO CORRETO
