@@ -174,4 +174,4 @@ class UserRegistrationService:
 
         return BuyerRegistrationResponse.from_domain_entities(saved_buyer_entity, saved_user_entity, saved_address)
         
-        
+        #TODO check email format
