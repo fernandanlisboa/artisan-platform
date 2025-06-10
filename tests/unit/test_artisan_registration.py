@@ -1,6 +1,7 @@
 from unittest.mock import Mock
 import uuid
 from app.application.services.user_registration_service import UserRegistrationService
+from app.domain.repositories.address_repository_interface import IAddressRepository
 from app.domain.repositories.user_repository_interface import IUserRepository
 from app.domain.repositories.artisan_repository_interface import IArtisanRepository
 from app.domain.models.user import UserEntity as User 
@@ -12,11 +13,12 @@ class TestArtisanRegistration:
   def test_register_artisan_successfully(self):
     mock_user_repository = Mock(spec=IUserRepository)
     mock_artisan_repository = Mock(spec=IArtisanRepository)
+    mock_address_repository = Mock(spec=IAddressRepository)  # Assuming you have an address repository, mock it if needed
     # Mock the save method to return a UserEntity with the expected attributes
     # TODO find by email to check if email already exists
     # mock_user_repository.find_by_email.return_value = None
     
-    service = UserRegistrationService(user_repository=mock_user_repository, artisan_repository=mock_artisan_repository) 
+    service = UserRegistrationService(user_repository=mock_user_repository, artisan_repository=mock_artisan_repository, address_repository=mock_address_repository) 
     
     expected_user_id = str(uuid.uuid4()) # Gere um ID para o mock
     saved_user_entity = User(user_id=expected_user_id, email="test@artisan.com", password="SecurePassword123", status='active')
