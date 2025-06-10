@@ -12,6 +12,7 @@ class BuyerDBModel(db.Model):
     user = relationship('UserDBModel', back_populates='buyer')
     orders = relationship('OrderDBModel', back_populates='buyer')
     reviews = relationship('ReviewDBModel', back_populates='buyer')
-
+    cart = relationship('CartDBModel', back_populates='buyer', uselist=False)
+    
     def __repr__(self):
         return f"<BuyerDBModel(id='{self.buyer_id}', name='{self.full_name}')>"
