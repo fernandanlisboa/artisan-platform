@@ -14,9 +14,8 @@ class BuyerRepository(IBuyerRepository):
         """
         # CONVERSION: Pure Domain Entity -> ORM Model
         buyer_db_model = BuyerDBModel(
-            artisan_id=buyer_entity.buyer_id,
+            buyer_id=buyer_entity.buyer_id,
             full_name=buyer_entity.full_name,
-            address=buyer_entity.address,
             phone=buyer_entity.phone,
         )
         
