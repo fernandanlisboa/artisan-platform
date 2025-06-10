@@ -10,7 +10,7 @@ from app.domain.repositories.buyer_repository_interface import IBuyerRepository
 
 from tests.unit.mock_data import MockFactory, fake
 from tests.unit.base_user_registration_test import BaseUserRegistrationTest
-from app.presentation.dtos.user_dtos import RegisterArtisanRequest
+from app.presentation.dtos.user_dtos import RegisterAddressRequest, RegisterArtisanRequest
 
 class TestArtisanRegistration(BaseUserRegistrationTest):
     
