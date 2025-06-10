@@ -94,6 +94,10 @@ class UserRegistrationService:
         #check email already exists
         if self.user_repository.get_by_email(request_data.email) is not None:
             raise ValueError("Email already registered.")
+        #check if the password is valid
+        is_valid, error_message = self.__check_password_validity(request_data.password)
+        if not is_valid:
+            raise ValueError(error_message)
         
         user_entity = User(
             user_id=None,  # ID será gerado
@@ -103,15 +107,7 @@ class UserRegistrationService:
             address_id=saved_address.address_id,  # Inicialmente None, será atualizado após salvar o endereço
         )
         print("User Entity: ", user_entity)
-        
-        
-        #check if the password is valid
-        is_valid, error_message = self.__check_password_validity(request_data.password)
-        if not is_valid:
-            raise ValueError(error_message)
-        
         saved_user_entity = self.user_repository.save(user_entity)
-        
         #check phone
         artisan_entity = ArtisanEntity(
             artisan_id=saved_user_entity.user_id,
@@ -142,18 +138,31 @@ class UserRegistrationService:
             zip_code=request_data.address.zip_code
         )
         print("Address Entity (Buyer): ", address_entity)
-
-        saved_address = self.address_repository.save(address_entity)
+        saved_address = self.address_repository.get_by_attributes(address_entity)
+        if saved_address:
+            print("Address already exists, using existing address.")
+        else:
+            saved_address = self.address_repository.save(address_entity)
+            print("New address saved: ", saved_address)
+        
+        #check email already exists
+        if self.user_repository.get_by_email(request_data.email) is not None:
+            raise ValueError("Email already registered.")
+        
+        #check if the password is valid
+        is_valid, error_message = self.__check_password_validity(request_data.password)
+        if not is_valid:
+            raise ValueError(error_message)
+        
         user_entity = User(
             user_id=None,  # ID será gerado
             email=request_data.email,
             password=request_data.password,  # Aqui você deve aplicar a lógica de hash da senha
             status='active',  # Status do usuário, pode ser 'active', 'inactive', etc.
-            address_id=saved_address.address_id,  # Vincula o endereço salvo ao usuário
+            address_id=saved_address.address_id,  # Inicialmente None, será atualizado após salvar o endereço
         )
-        print("User Entity (Buyer): ", user_entity)
-        saved_user_entity = self.user_repository.save(user_entity) # Salva o usuário (agora com address_id)
-
+        print("User Entity: ", user_entity)
+        saved_user_entity = self.user_repository.save(user_entity)
         buyer_entity = BuyerEntity(
             buyer_id=saved_user_entity.user_id, # O ID do comprador é o mesmo ID do usuário
             full_name=request_data.full_name,
