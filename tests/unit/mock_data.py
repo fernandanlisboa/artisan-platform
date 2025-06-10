@@ -1,4 +1,6 @@
 from datetime import datetime
+import uuid
+
 # --- Mock para UserEntity temporário no teste (Age como uma entidade de domínio) ---
 class MockUserEntity:
     def __init__(self, email, senha, role, user_id=None):
