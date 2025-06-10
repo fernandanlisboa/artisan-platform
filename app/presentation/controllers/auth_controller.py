@@ -212,7 +212,7 @@ class ArtisanRegistrationResource(Resource): # HERDA DE flask_restx.Resource
             print(f"Internal server error during artisan registration: {e}") 
             auth_ns.abort(500, "Internal server error")
 
-# Import DTOs para comprador
+
 
 # --- DEFINIÇÃO DO MODELO DE REQUISIÇÃO DE COMPRADOR PARA FLASK-RESTX ---
 buyer_registration_request_model = auth_ns.model('RegisterBuyerRequest', {
@@ -270,7 +270,7 @@ buyer_registration_response_model = auth_ns.model('BuyerRegistrationResponseOutp
         skip_none=True
     )
 })
-#FIX nao esta funcionando criar comrpador!
+#FIX: time out
 @auth_ns.route('/register/buyer')
 class BuyerRegistrationResource(Resource):
     """Resource for buyer registration."""
