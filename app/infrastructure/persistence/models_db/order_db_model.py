@@ -14,7 +14,8 @@ class OrderDBModel(db.Model):
     
     # The diagram shows 'delivery_address' as a direct field, not FK to Address
     # Assuming it's a string for this specific order
-    delivery_address = db.Column(db.String(255), nullable=True) 
+    delivery_address_id = db.Column(db.String(36), db.ForeignKey('addresses.address_id'), unique=True, nullable=True, name='address_id')
+    delivery_address = relationship('AddressDBModel') 
 
     payment_method = db.Column(db.String(50), nullable=False)
     gateway_transaction_id = db.Column(db.String(255), nullable=True)
