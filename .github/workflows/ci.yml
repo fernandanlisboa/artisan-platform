@@ -105,21 +105,20 @@ jobs:
         DATABASE_URL: "sqlite:///dast_test.db" 
         FLASK_APP: app
         FLASK_SECRET_KEY: "dast-key"
-      # CORREÇÃO: Voltando a rodar em segundo plano para não travar o pipeline
       run: nohup flask run &
     
-    - name: Wait for application to start (Smart Wait)
+    - name: Wait for application to start
       run: |
         echo "Waiting for Flask app to become available..."
-        # Este comando é mais confiável e espera até 60s
         timeout 60s bash -c 'until curl -s http://127.0.0.1:5000 > /dev/null; do echo -n "."; sleep 1; done'
         echo "Flask app is up!"
 
+    - name: Set write permissions for ZAP report
+      run: sudo chmod -R 777 ${{ github.workspace }}
+
     - name: API Security Scan (DAST) with OWASP ZAP
-      # Usando o comando direto do Docker que é mais confiável
       run: |
         docker run --network=host \
-          -u $(id -u):$(id -g) \
           -v ${{ github.workspace }}:/zap/wrk/:rw \
           ghcr.io/zaproxy/zaproxy:stable \
           zap-api-scan.py \
@@ -130,7 +129,7 @@ jobs:
     
     - name: Upload ZAP Report
       uses: actions/upload-artifact@v4
-      if: always() # Sempre executa, para podermos ver o relatório mesmo que o scan falhe
+      if: always()
       with:
         name: zap-scan-report
         path: zap_report.html
