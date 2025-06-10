@@ -122,9 +122,7 @@ jobs:
       with:
         target: 'http://127.0.0.1:5000'
         
-        api_file_name: 'openapi.json' 
-
+        cmd_options: '-O /zap/wrk/openapi.json'
         fail_action: false 
-
         issue_title: 'Vulnerability found by ZAP'
         token: ${{ secrets.GITHUB_TOKEN }}
