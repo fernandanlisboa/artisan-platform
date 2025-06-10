@@ -55,7 +55,15 @@ jobs:
         echo "FLASK_SECRET_KEY=testing-key-for-ci" >> .env
     
     - name: Run Migrations
-      run: alembic upgrade head
+      run: |
+        
+        alembic --version
+        
+        alembic current
+        
+        alembic upgrade head
+        
+        alembic current
       env:
         DATABASE_URL: mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test
 
