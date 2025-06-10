@@ -119,6 +119,7 @@ jobs:
       # Usando o comando direto do Docker que é mais confiável
       run: |
         docker run --network=host \
+          -u $(id -u):$(id -g) \
           -v ${{ github.workspace }}:/zap/wrk/:rw \
           ghcr.io/zaproxy/zaproxy:stable \
           zap-api-scan.py \
