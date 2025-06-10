@@ -117,7 +117,6 @@ class UserRegistrationService:
         )
         print("Artisan Entity: ", artisan_entity)
         saved_artisan_entity = self.artisan_repository.save(artisan_entity)
-        
         return ArtisanRegistrationResponse.from_domain_entities(saved_artisan_entity, saved_user_entity, saved_address)
 
     def register_buyer(self, request_data: RegisterBuyerRequest) -> BuyerRegistrationResponse:
