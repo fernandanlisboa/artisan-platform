@@ -30,16 +30,22 @@ def create_app():
     from app.presentation.controllers.auth_controller import auth_ns 
     api.add_namespace(auth_ns) 
 
-    # Ocultar informações de versão
+    # Adicionar middleware de segurança para todas as respostas
     @app.after_request
     def add_security_headers(response):
+        # Remove/substitui informações de versão do servidor
         response.headers['Server'] = 'Artisan Platform'
         
-        # Configurar Content Security Policy
-        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self';"
+        # Configuração de Content Security Policy
+        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; object-src 'none';"
         
-        # Configurar Permissions Policy
-        response.headers['Permissions-Policy'] = "geolocation=(), microphone=(), camera=()"
+        # Configuração de Permissions Policy
+        response.headers['Permissions-Policy'] = "geolocation=(), microphone=(), camera=(), payment=()"
+        
+        # Proteções adicionais contra XSS e outros ataques
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
         
         return response
 
