@@ -42,7 +42,7 @@ target_metadata = db.metadata
 
 
 def run_migrations_offline() -> None:
-    url = os.getenv("LOCAL_DATABASE_URL")
+    url = os.getenv("DATABASE_URL")
     # Este print serve para o modo offline
     print(f"DEBUG OFFLINE: DATABASE_URL que Alembic está lendo (OFFLINE): {url}") # Opcional
     context.configure(
@@ -66,7 +66,7 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    alembic_database_url = os.getenv("LOCAL_DATABASE_URL")
+    alembic_database_url = os.getenv("DATABASE_URL")
 
     # --- NOVO LOCAL DO PRINT DE DEBUG PARA O MODO ONLINE (CRÍTICO) ---
     print(f"\n--- DEBUG ALEMBIC ONLINE START ---")

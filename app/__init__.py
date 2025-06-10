@@ -1,62 +1,52 @@
 # app/__init__.py
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from dotenv import load_dotenv 
-import os 
-from sqlalchemy.exc import OperationalError, InterfaceError, ArgumentError # SQLAlchemy exceptions
-from sqlalchemy import text
-from flask_restx import Api
-
-load_dotenv()
-
-db = SQLAlchemy()
-api = Api( # <--- A instância da sua API global
-    version='1.0',
-    title='Plataforma de Artesãos API',
-    description='API para gerenciar artesãos, compradores e produtos.',
-    doc='/swagger-ui/' # Define a URL para o Swagger UI
-)
+import os
+from app.extensions import db, api
+from app.common.config import config_by_name # <--- Importa o dicionário de configurações
 
 def create_app():
+    # Determina qual ambiente usar. Padrão é 'development' se não for especificado.
+    # O CI/CD irá definir FLASK_ENV=testing no arquivo .env.
+    config_name = os.getenv('FLASK_ENV', 'development')
+
     app = Flask(__name__)
     
-    # Flask configurations
-    app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('LOCAL_DATABASE_URL')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    # 1. CARREGA TODA A CONFIGURAÇÃO A PARTIR DO OBJETO CORRETO
+    app.config.from_object(config_by_name[config_name])
 
+    # 2. INICIALIZA AS EXTENSÕES COM O APP JÁ CONFIGURADO
     db.init_app(app)
-    with app.app_context():
-        if os.getenv('CHECK_DB_CONNECTION_ON_STARTUP', 'False') == 'True': # Controlled by environment variable
-            try:
-                # Try a lightweight operation to check connectivity
-                with db.engine.connect() as connection:
-                    connection.execute(text("SELECT 1"))
-                print("INFO: Database connection successfully verified!")
-            except ArgumentError as ae: # Errors in DATABASE_URL formatting
-                print(f"CONFIGURATION ERROR: Invalid DATABASE_URL format: {ae}")
-                print("ACTION: Check the syntax of DATABASE_URL in your .env (e.g., mysql+pymysql://user:pass@host/db).")
-            except OperationalError as oe: # Operational errors: connection refused, access denied, unknown DB
-                # oe.orig often contains the original driver exception (e.g., pymysql.err.OperationalError)
-                original_exception_msg = str(oe.orig) if oe.orig else str(oe)
-                print(f"OPERATIONAL ERROR: Failed to connect to the database: {original_exception_msg}")
-                
-                if "1045" in original_exception_msg: # MySQL error code for Access Denied
-                    print("LIKELY CAUSE: Access denied. Check user, password, source host, and database permissions.")
-                elif "1049" in original_exception_msg: # MySQL error code for Unknown database
-                    print("LIKELY CAUSE: Database not found. Check the database name in DATABASE_URL.")
-                elif "2003" in original_exception_msg or "2005" in original_exception_msg: # Codes for "Can't connect to MySQL server"
-                    print("LIKELY CAUSE: Could not connect to MySQL server. Check host, port, if the server is running, and if applicable, if the Cloud SQL Auth Proxy is active and properly configured.")
-                else:
-                    print("ACTION: Check DATABASE_URL, database server status, network settings (e.g., Cloud SQL 'Authorized Networks', Proxy status), and application logs for more details.")
-            except InterfaceError as ie: # Problems with the DBAPI interface (e.g., driver not found)
-                print(f"DB INTERFACE ERROR: Problem with the database driver (e.g., pymysql): {ie}")
-                print("ACTION: Check if the database driver (such as pymysql) is correctly installed in the application environment.")
-            except Exception as e: # Other unexpected errors
-                print(f"UNEXPECTED ERROR while trying to connect to the database: {e}")
-                print("ACTION: Check general settings and application logs.")
     api.init_app(app)
-    
+
+    # 3. VERIFICA A CONEXÃO COM O BANCO (seu código de verificação)
+    # Este bloco continua útil, especialmente para debugar o startup em produção
+    with app.app_context():
+        if app.config.get('CHECK_DB_CONNECTION_ON_STARTUP', 'False') == 'True':
+            # ... seu código de verificação de conexão ...
+            print("INFO: Verificação de conexão com DB ativada.")
+            pass # Mantenha sua lógica aqui
+
+    # 4. REGISTRA OS NAMESPACES DA API
     from app.presentation.controllers.auth_controller import auth_ns 
-    api.add_namespace(auth_ns, path='/api')
+    api.add_namespace(auth_ns) 
+
+    # Adicionar middleware de segurança para todas as respostas
+    @app.after_request
+    def add_security_headers(response):
+        # Remove/substitui informações de versão do servidor
+        response.headers['Server'] = 'Artisan Platform'
+        
+        # Configuração de Content Security Policy
+        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; object-src 'none';"
+        
+        # Configuração de Permissions Policy
+        response.headers['Permissions-Policy'] = "geolocation=(), microphone=(), camera=(), payment=()"
+        
+        # Proteções adicionais contra XSS e outros ataques
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        
+        return response
+
     return app

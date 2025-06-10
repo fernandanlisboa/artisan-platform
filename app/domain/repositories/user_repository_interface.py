@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from app.domain.models.user import UserEntity
+from typing import Optional
 
 #interface
 class IUserRepository(ABC):
@@ -16,4 +17,13 @@ class IUserRepository(ABC):
         :return: The saved UserEntity instance.
         """
         pass
+
+    @abstractmethod
+    def get_by_email(self, email: str) -> Optional[UserEntity]:
+        """
+        Retrieve a user by email.
         
+        :param email: Email of the user to retrieve.
+        :return: UserEntity instance if found, None otherwise.
+        """
+        pass        

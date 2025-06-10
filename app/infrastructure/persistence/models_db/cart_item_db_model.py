@@ -1,5 +1,6 @@
 from app import db
 from sqlalchemy.sql import func
+import uuid
 
 from sqlalchemy.orm import relationship
 
