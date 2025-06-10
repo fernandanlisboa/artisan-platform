@@ -53,8 +53,18 @@ jobs:
         echo "DATABASE_URL=mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test" >> .env
         echo "FLASK_SECRET_KEY=testing-key-for-ci" >> .env
     
-    - name: Run Migrations
-      run: alembic upgrade head
+    - name: Run Migrations with Alembic Action
+      uses: levz/alembic-actions@v0.2.0 # Recomendo fixar a versão
+      with:
+        # O comando que você quer executar (upgrade, downgrade, check, etc.)
+        command: upgrade
+        
+        # A revisão para qual você quer ir. 'head' significa a mais recente.
+        revision: head
+        
+        # A parte mais importante: a URL de conexão com o banco de dados.
+        # A Action irá configurar o Alembic para usar esta URL.
+        connection-uri: mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test
 
     - name: Test with pytest
       run: |
