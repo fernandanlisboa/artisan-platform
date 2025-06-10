@@ -6,7 +6,7 @@ import os
 load_dotenv()
 
 # Adapte para seu dialeto e variáveis
-url = os.getenv("DATABASE_URL")
+url = os.getenv("LOCAL_DATABASE_URL")
 print(f"Tentando conectar com: {url}")
 
 try:
