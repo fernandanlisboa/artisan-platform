@@ -105,21 +105,18 @@ jobs:
         DATABASE_URL: "sqlite:///dast_test.db" 
         FLASK_APP: app
         FLASK_SECRET_KEY: "dast-key"
-      run: |
-        echo "Attempting to start Flask app in foreground with debug mode..."
-        # Executamos o 'flask run' diretamente para ver qualquer erro de inicialização.
-        # A flag '--debug' nos dará o máximo de informações.
-        # Este passo irá travar e mostrar o erro se a aplicação não iniciar.
-        flask run --debug
+      # CORREÇÃO: Voltando a rodar em segundo plano para não travar o pipeline
+      run: nohup flask run &
     
-    - name: Wait for application to start
+    - name: Wait for application to start (Smart Wait)
       run: |
         echo "Waiting for Flask app to become available..."
-        timeout 30s bash -c 'until curl -s http://127.0.0.1:5000 > /dev/null; do echo -n "."; sleep 1; done'
+        # Este comando é mais confiável e espera até 60s
+        timeout 60s bash -c 'until curl -s http://127.0.0.1:5000 > /dev/null; do echo -n "."; sleep 1; done'
         echo "Flask app is up!"
 
-    # --- CORREÇÃO DEFINITIVA: USANDO DOCKER DIRETAMENTE ---
     - name: API Security Scan (DAST) with OWASP ZAP
+      # Usando o comando direto do Docker que é mais confiável
       run: |
         docker run --network=host \
           -v ${{ github.workspace }}:/zap/wrk/:rw \
@@ -132,7 +129,7 @@ jobs:
     
     - name: Upload ZAP Report
       uses: actions/upload-artifact@v4
-      if: always() # Sempre executa, mesmo que o passo anterior falhe
+      if: always() # Sempre executa, para podermos ver o relatório mesmo que o scan falhe
       with:
         name: zap-scan-report
         path: zap_report.html
