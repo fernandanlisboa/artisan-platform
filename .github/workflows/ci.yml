@@ -54,10 +54,7 @@ jobs:
         echo "FLASK_SECRET_KEY=testing-key-for-ci" >> .env
     
     - name: Run Migrations
-      run: |
-        flask db upgrade
-      env:
-        FLASK_APP: app
+      run: alembic upgrade head
 
     - name: Test with pytest
       run: |
