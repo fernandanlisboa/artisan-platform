@@ -117,12 +117,17 @@ jobs:
         sleep 15
         echo "Done waiting! Starting ZAP Scan."
 
-    - name: Dynamic Analysis (DAST) with OWASP ZAP
-      uses: zaproxy/action-full-scan@v0.10.0
+    - name: API Security Scan (DAST) with OWASP ZAP
+      # --- CORREÇÃO: Usando a action específica para API Scan ---
+      uses: zaproxy/action-api-scan@v0.5.0
       with:
+        # O alvo continua sendo a nossa API rodando localmente
         target: 'http://127.0.0.1:5000'
         
-        cmd_options: '-O /zap/wrk/openapi.json'
-        fail_action: false 
-        issue_title: 'Vulnerability found by ZAP'
+        # Esta action ENTENDE o parâmetro 'api_file_name' corretamente
+        api_file_name: 'openapi.json'
+        
+        # O resto das configurações permanece o mesmo
+        fail_action: false
+        issue_title: 'Vulnerabilidade de API Encontrada pelo ZAP'
         token: ${{ secrets.GITHUB_TOKEN }}
