@@ -81,7 +81,6 @@ Desktop.ini
 
 # dotenv
 *.env
-*.env.*
 
 # Logs
 *.log
