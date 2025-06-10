@@ -21,6 +21,7 @@ def create_app():
     app = Flask(__name__)
     
     # Flask configurations
+    app.config['JSON_AS_ASCII'] = False
     app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('LOCAL_DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
