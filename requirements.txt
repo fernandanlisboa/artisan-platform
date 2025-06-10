@@ -7,3 +7,4 @@ pymysql
 alembic
 pytest
 pydantic
+flask_restx
