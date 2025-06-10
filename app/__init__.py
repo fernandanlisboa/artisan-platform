@@ -28,6 +28,6 @@ def create_app():
 
     # 4. REGISTRA OS NAMESPACES DA API
     from app.presentation.controllers.auth_controller import auth_ns 
-    api.add_namespace(auth_ns, path='/api/auth') # Exemplo de path mais específico
+    api.add_namespace(auth_ns) 
 
     return app

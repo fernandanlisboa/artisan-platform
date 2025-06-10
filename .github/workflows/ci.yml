@@ -105,7 +105,12 @@ jobs:
         DATABASE_URL: "sqlite:///dast_test.db" 
         FLASK_APP: app
         FLASK_SECRET_KEY: "dast-key"
-      run: nohup flask run &
+        FLASK_DEBUG: "1"  # Adicionar para mais logs úteis
+      run: |
+        # Primeiro confirme que a aplicação está inicializando corretamente
+        python -c "from app import create_app; app = create_app(); print('Routes:', [rule.rule for rule in app.url_map.iter_rules()])"
+        # Então inicie a aplicação
+        nohup flask run &
     
     - name: Wait for application to start
       run: |
