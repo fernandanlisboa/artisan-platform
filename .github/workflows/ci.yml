@@ -121,12 +121,10 @@ jobs:
       # --- CORREÇÃO: Usando a action específica para API Scan ---
       uses: zaproxy/action-api-scan@v0.5.0
       with:
-        # O alvo continua sendo a nossa API rodando localmente
-        target: 'http://127.0.0.1:5000'
         
         # Esta action ENTENDE o parâmetro 'api_file_name' corretamente
-        api_file_name: 'openapi.json'
-        
+        target: 'openapi.json'
+        format: openapi
         # O resto das configurações permanece o mesmo
         fail_action: false
         issue_title: 'Vulnerabilidade de API Encontrada pelo ZAP'
