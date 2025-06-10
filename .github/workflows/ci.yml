@@ -54,7 +54,7 @@ jobs:
         echo "FLASK_SECRET_KEY=testing-key-for-ci" >> .env
     
     - name: Run Migrations with Alembic Action
-      uses: levz/alembic-actions@v0
+      uses: OpenMindUA/alembic-actions@v0.4
       with:
         # O comando que você quer executar (upgrade, downgrade, check, etc.)
         command: upgrade
