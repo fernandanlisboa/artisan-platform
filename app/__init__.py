@@ -30,4 +30,17 @@ def create_app():
     from app.presentation.controllers.auth_controller import auth_ns 
     api.add_namespace(auth_ns) 
 
+    # Ocultar informações de versão
+    @app.after_request
+    def add_security_headers(response):
+        response.headers['Server'] = 'Artisan Platform'
+        
+        # Configurar Content Security Policy
+        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self';"
+        
+        # Configurar Permissions Policy
+        response.headers['Permissions-Policy'] = "geolocation=(), microphone=(), camera=()"
+        
+        return response
+
     return app
