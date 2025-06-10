@@ -9,9 +9,10 @@ from app.domain.repositories.address_repository_interface import IAddressReposit
 from app.domain.repositories.buyer_repository_interface import IBuyerRepository
 
 from tests.unit.mock_data import MockFactory, fake
-from app.presentation.dtos.user_dtos import RegisterArtisanRequest, RegisterAddressRequest
+from tests.unit.base_user_registration_test import BaseUserRegistrationTest
+from app.presentation.dtos.user_dtos import RegisterArtisanRequest
 
-class TestArtisanRegistration:
+class TestArtisanRegistration(BaseUserRegistrationTest):
     
     @pytest.fixture
     def mock_repositories(self):
@@ -73,15 +74,19 @@ class TestArtisanRegistration:
         
         return phone
 
+    def _registration_method(self, service, request):
+        """Define o método de registro específico para artesãos."""
+        return service.register_artisan(request)
+    
     @pytest.fixture
     def valid_artisan_request(self, valid_address_request):
-        """Cria um objeto de requisição de artesão válido com senha forte."""
+        """Cria um objeto de requisição de artesão válido."""
         return RegisterArtisanRequest(
             email=fake.email(),
             password=f"Valid{fake.random_int(10, 99)}Password!{fake.random_letter().upper()}",
-            store_name=fake.company(),
-            phone=self.__generate_valid_phone(),  
-            bio=fake.paragraph(nb_sentences=1),
+            store_name=f"Ateliê {fake.company()}",
+            phone=self._generate_valid_phone(),
+            bio=fake.paragraph(),
             address=valid_address_request
         )
     

@@ -10,66 +10,15 @@ from app.domain.repositories.artisan_repository_interface import IArtisanReposit
 from tests.unit.mock_data import MockFactory, fake
 
 from app.presentation.dtos.user_dtos import RegisterBuyerRequest, RegisterAddressRequest
+from tests.unit.base_user_registration_test import BaseUserRegistrationTest
 
 
-class TestBuyerRegistration:
+class TestBuyerRegistration(BaseUserRegistrationTest):
     
-    @pytest.fixture
-    def mock_repositories(self):
-        """Configura repositórios mock para todos os testes."""
-        return {
-            'user_repo': Mock(spec=IUserRepository),
-            'artisan_repo': Mock(spec=IArtisanRepository),
-            'address_repo': Mock(spec=IAddressRepository),
-            'buyer_repo': Mock(spec=IBuyerRepository)
-        }
+    def _registration_method(self, service, request):
+        """Define o método de registro específico para compradores."""
+        return service.register_buyer(request)
     
-    @pytest.fixture
-    def service(self, mock_repositories):
-        """Cria o serviço com repositórios mockados."""
-        return UserRegistrationService(
-            user_repository=mock_repositories['user_repo'],
-            artisan_repository=mock_repositories['artisan_repo'],
-            address_repository=mock_repositories['address_repo'],
-            buyer_repository=mock_repositories['buyer_repo']
-        )
-    
-    @pytest.fixture
-    def test_ids(self):
-        """Gera IDs consistentes para uso nos testes."""
-        return {
-            'user_id': str(uuid.uuid4()),
-            'address_id': str(uuid.uuid4())
-        }
-    
-    @pytest.fixture
-    def valid_address_request(self):
-        """Cria um objeto de requisição de endereço válido."""
-        return RegisterAddressRequest(
-            street=fake.street_name(),
-            number=fake.building_number(),
-            complement=fake.secondary_address(),
-            neighborhood=fake.city_suffix(),
-            city=fake.city(),
-            state=fake.state_abbr(),
-            zip_code=fake.postcode(),
-            country=fake.country()
-        )
-
-    def __generate_valid_phone(self, max_length=20):
-        """Gera um número de telefone válido com comprimento máximo especificado."""
-        formats = [
-            '+## (##) ####-####',
-            '(##) ####-####',
-            '##-####-####',
-            '+##########'
-        ]
-        
-        format_template = random.choice(formats)
-        phone = ''.join([str(fake.random_digit()) if c == '#' else c for c in format_template])
-        
-        return phone
-
     @pytest.fixture
     def valid_buyer_request(self, valid_address_request):
         """Cria um objeto de requisição de comprador válido com senha forte."""
@@ -77,13 +26,13 @@ class TestBuyerRegistration:
             email=fake.email(),
             password=f"Valid{fake.random_int(10, 99)}Password!{fake.random_letter().upper()}",
             full_name=fake.name(),
-            phone=self.__generate_valid_phone(),
+            phone=self._generate_valid_phone(),
             address=valid_address_request
         )
     
     @pytest.fixture
     def mock_entities(self, test_ids, valid_buyer_request):
-        """Configura entidades mock consistentes para os testes."""
+        """Configura entidades mock específicas para compradores."""
         return {
             'address': MockFactory().create_address({
                 'address_id': test_ids['address_id'],
@@ -108,30 +57,12 @@ class TestBuyerRegistration:
             })
         }
     
-    def setup_successful_registration(self, mock_repositories, mock_entities):
-        """Configura mocks para um registro bem-sucedido."""
-        mock_repositories['user_repo'].get_by_email.return_value = None
-        mock_repositories['address_repo'].get_by_attributes.return_value = None
-        mock_repositories['address_repo'].save.return_value = mock_entities['address']
-        mock_repositories['user_repo'].save.return_value = mock_entities['user']
-        mock_repositories['buyer_repo'].save.return_value = mock_entities['buyer']
-    
-    def setup_existing_email(self, mock_repositories, mock_entities):
-        """Configura mocks para o cenário de e-mail já existente."""
-        mock_repositories['user_repo'].get_by_email.return_value = mock_entities['user']
-    
-    def setup_existing_address(self, mock_repositories, mock_entities):
-        """Configura mocks para o cenário de endereço já existente."""
-        mock_repositories['user_repo'].get_by_email.return_value = None
-        mock_repositories['address_repo'].get_by_attributes.return_value = mock_entities['address']
-        mock_repositories['user_repo'].save.return_value = mock_entities['user']
-        mock_repositories['buyer_repo'].save.return_value = mock_entities['buyer']
-    
     def test_register_buyer_successfully(self, mock_repositories, service, valid_buyer_request, 
-                                         mock_entities, test_ids):
+                                        mock_entities, test_ids):
         """Testa o fluxo de sucesso do registro de comprador."""
         # Arrange
-        self.setup_successful_registration(mock_repositories, mock_entities)
+        self._setup_basic_mocks(mock_repositories, mock_entities)
+        mock_repositories['buyer_repo'].save.return_value = mock_entities['buyer']
         
         # Act
         response = service.register_buyer(valid_buyer_request)
@@ -151,62 +82,31 @@ class TestBuyerRegistration:
                                                 valid_buyer_request, mock_entities, test_ids):
         """Testa registro com um endereço já existente."""
         # Arrange
-        self.setup_existing_address(mock_repositories, mock_entities)
+        self._setup_basic_mocks(mock_repositories, mock_entities, address_exists=True)
+        mock_repositories['buyer_repo'].save.return_value = mock_entities['buyer']
         
         # Act
         response = service.register_buyer(valid_buyer_request)
         
-        # Assert - foco apenas no comportamento de endereço
-        mock_repositories['address_repo'].get_by_attributes.assert_called_once()
+        # Assert
         mock_repositories['address_repo'].save.assert_not_called()
-        
-        # Verifica que o usuário foi associado ao endereço existente
         user_arg = mock_repositories['user_repo'].save.call_args[0][0]
         assert user_arg.address_id == test_ids['address_id']
     
     def test_register_buyer_with_existing_email(self, mock_repositories, service, 
                                               valid_buyer_request, mock_entities):
         """Testa validação de email duplicado."""
-        # Arrange
-        self.setup_existing_email(mock_repositories, mock_entities)
-        
-        # Act & Assert
-        with pytest.raises(ValueError) as excinfo:
-            service.register_buyer(valid_buyer_request)
-        
-        assert "Email already registered" in str(excinfo.value)
-        
-        # Verifica que nada foi salvo
-        mock_repositories['user_repo'].save.assert_not_called()
-        mock_repositories['address_repo'].save.assert_not_called()
-        mock_repositories['buyer_repo'].save.assert_not_called()
+        self._setup_basic_mocks(mock_repositories, mock_entities, email_exists=True)
+        self._assert_common_validations(
+            service, valid_buyer_request, mock_repositories, "Email already registered")
     
     def test_register_buyer_with_invalid_password(self, mock_repositories, service):
-        """Testa diferentes formatos de senha inválida."""
-        # Configurar mock para email não existente
-        mock_repositories['user_repo'].get_by_email.return_value = None
-        
-        # Casos de teste com senha inválida e mensagens específicas esperadas
-        test_cases = [
-            {"password": "short", "expected": "8 characters"},  # Verificar limite mínimo
-            {"password": "nouppercase123$", "expected": "uppercase"},
-            {"password": "NOLOWERCASE123$", "expected": "lowercase"},
-            {"password": "NoNumbers$", "expected": "number"},
-            {"password": "NoSpecialChars123", "expected": "special character"}
-        ]
-        
-        for case in test_cases:
-            # Cria mock request com a senha do caso de teste
-            mock_request = Mock()
-            mock_request.email = fake.email()
-            mock_request.password = case["password"]
-            mock_request.full_name = fake.name()
+        """Testa diferentes formatos de senha inválida usando o método da classe base."""
+        def create_request(password):
+            request = Mock()
+            request.email = fake.email()
+            request.password = password
+            request.full_name = fake.name()
+            return request
             
-            # Act & Assert
-            with pytest.raises(ValueError) as excinfo:
-                service.register_buyer(mock_request)
-            
-            # Valida a mensagem específica para cada tipo de senha inválida
-            error = str(excinfo.value).lower()
-            assert "password" in error, f"Erro para '{case['password']}' não menciona 'password'"
-            assert case["expected"].lower() in error, f"Erro para '{case['password']}' não contém '{case['expected']}'"
+        self._test_password_validations(service, mock_repositories, create_request)
