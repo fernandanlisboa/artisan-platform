@@ -37,7 +37,6 @@ class CartDBModel(db.Model):
     #         ele será deletado do banco. Se o Cart for deletado, todos os seus CartItems
     #         serão deletados juntos. Essencial para a integridade do carrinho.
     items = relationship('CartItemDBModel', back_populates='cart', cascade='all, delete-orphan')
-    buyer = relationship('BuyerDBModel', back_populates='cart')
 
     # Construtor corrigido
     def __init__(self, buyer_id: str, cart_id: str = None):
