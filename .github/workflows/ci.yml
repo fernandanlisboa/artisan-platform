@@ -56,7 +56,7 @@ jobs:
     - name: Run Migrations with Alembic Action
       uses: OpenMindUA/alembic-actions@v0.4
       with:
-        # O comando que você quer executar (upgrade, downgrade, check, etc.)
+        action: test
         dialect: "mysql"
         alembic_ini: "alembic.ini"       
         # connection-uri: mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test
