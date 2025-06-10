@@ -34,9 +34,22 @@ class AddressEntity:
         """
         # The zip_code is already cleaned by the pydantic validator upon creation.
         # This dictionary explicitly defines what makes an address unique.
-        return {
-            "zip_code": self.zip_code,
-            "street": self.street.lower().strip(),
-            "number": self.number.lower().strip(),
-            "complement": self.complement.lower().strip() if self.complement else None
-        }
+        filter_dict = {}
+        if self.street:
+            filter_dict['street'] = self.street
+        if self.number:
+            filter_dict['number'] = self.number
+        if self.neighborhood:
+            filter_dict['neighborhood'] = self.neighborhood
+        if self.city:
+            filter_dict['city'] = self.city
+        if self.state:
+            filter_dict['state'] = self.state
+        if self.zip_code:
+            filter_dict['zip_code'] = self.zip_code
+            
+        # Se não tiver critérios suficientes, podemos ter resultados imprecisos
+        if len(filter_dict) < 3:
+            print("WARNING: Few filter criteria for address lookup, may return imprecise results")
+            
+        return filter_dict
