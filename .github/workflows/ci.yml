@@ -105,7 +105,12 @@ jobs:
         DATABASE_URL: "sqlite:///dast_test.db" 
         FLASK_APP: app
         FLASK_SECRET_KEY: "dast-key"
-      run: nohup flask run &
+      run: |
+        echo "Attempting to start Flask app in foreground with debug mode..."
+        # Executamos o 'flask run' diretamente para ver qualquer erro de inicialização.
+        # A flag '--debug' nos dará o máximo de informações.
+        # Este passo irá travar e mostrar o erro se a aplicação não iniciar.
+        flask run --debug
     
     - name: Wait for application to start
       run: |
