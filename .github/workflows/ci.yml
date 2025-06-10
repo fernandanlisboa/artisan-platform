@@ -9,6 +9,7 @@ on:
 jobs:
   # JOB 1: tests with multiple Python versions
   test:
+    name: Run tests with multiple Python versions
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -53,14 +54,10 @@ jobs:
         echo "DATABASE_URL=mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test" >> .env
         echo "FLASK_SECRET_KEY=testing-key-for-ci" >> .env
     
-    - name: Run Migrations with Alembic Action
-      uses: OpenMindUA/alembic-actions@v0.4
-      with:
-        action: test
-        dialect: "mysql"
-        alembic_ini: "alembic.ini"       
-        # connection-uri: mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test
-        pr_revisions_only: "true" 
+    - name: Run Migrations
+      run: alembic upgrade head
+      env:
+        DATABASE_URL: mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test
 
     - name: Test with pytest
       run: |
