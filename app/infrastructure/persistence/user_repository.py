@@ -1,7 +1,7 @@
 from app.domain.repositories.user_repository_interface import IUserRepository
 from app.infrastructure.persistence.models_db.user_db_model import UserDBModel
 from app import db
-from app.domain.entities.user_entity import UserEntity
+from app.domain.models.user import UserEntity
 from datetime import datetime
 
 class UserRepository(IUserRepository):
