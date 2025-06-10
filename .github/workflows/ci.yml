@@ -57,14 +57,13 @@ jobs:
       uses: OpenMindUA/alembic-actions@v0.4
       with:
         # O comando que você quer executar (upgrade, downgrade, check, etc.)
-        command: upgrade
+        dialect: "mysql"
+        alembic_ini: "alembic.ini"
         
-        # A revisão para qual você quer ir. 'head' significa a mais recente.
         revision: head
         
-        # A parte mais importante: a URL de conexão com o banco de dados.
-        # A Action irá configurar o Alembic para usar esta URL.
         connection-uri: mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test
+        pr_revisions_only: "true" 
 
     - name: Test with pytest
       run: |
