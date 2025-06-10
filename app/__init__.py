@@ -13,7 +13,7 @@ def create_app():
     
     # 1. CARREGA TODA A CONFIGURAÇÃO A PARTIR DO OBJETO CORRETO
     app.config.from_object(config_by_name[config_name])
-
+    print(f"*** URL DO BANCO: {app.config['SQLALCHEMY_DATABASE_URI']} ***")
     # 2. INICIALIZA AS EXTENSÕES COM O APP JÁ CONFIGURADO
     db.init_app(app)
     api.init_app(app)
@@ -26,7 +26,6 @@ def create_app():
             print("INFO: Verificação de conexão com DB ativada.")
             pass # Mantenha sua lógica aqui
 
-    # 4. REGISTRA OS NAMESPACES DA API
     from app.presentation.controllers.auth_controller import auth_ns 
     api.add_namespace(auth_ns) 
 

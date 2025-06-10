@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 class Config:
     """Configuração base, com valores padrão."""
@@ -21,6 +21,8 @@ class DevelopmentConfig(Config):
     DEBUG = True
     # Lê a URL do banco de dados do seu arquivo .env local
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    print("dev env")
+    print(SQLALCHEMY_DATABASE_URI)
 
 class TestingConfig(Config):
     """Configuração para o ambiente de testes (usado pelo CI/CD)."""
