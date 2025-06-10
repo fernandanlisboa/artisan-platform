@@ -80,7 +80,6 @@ jobs:
   security_scan:
     name: Security Scans (SAST & DAST)
     runs-on: ubuntu-latest
-    # Esta linha garante que o job só rode se o job 'test' passar
     needs: test 
     
     steps:
@@ -98,34 +97,37 @@ jobs:
         pip install bandit
 
     - name: Static Analysis (SAST) with Bandit
-      run: bandit -r . -ll -ii # -r . (recursivo), -ll (médio/alto), -ii (médio/alto)
+      run: bandit -r . -ll -ii
 
     - name: Start Flask application in background
       env:
         FLASK_ENV: development
-        
         DATABASE_URL: "sqlite:///dast_test.db" 
         FLASK_APP: app
         FLASK_SECRET_KEY: "dast-key"
-      run: |
-        # 'nohup' e '&' rodam a aplicação em segundo plano, liberando o terminal
-        nohup flask run &
+      run: nohup flask run &
     
     - name: Wait for application to start
       run: |
-        echo "Waiting for 15 seconds for the app to start..."
-        sleep 15
-        echo "Done waiting! Starting ZAP Scan."
+        echo "Waiting for Flask app to become available..."
+        timeout 30s bash -c 'until curl -s http://127.0.0.1:5000 > /dev/null; do echo -n "."; sleep 1; done'
+        echo "Flask app is up!"
 
+    # --- CORREÇÃO DEFINITIVA: USANDO DOCKER DIRETAMENTE ---
     - name: API Security Scan (DAST) with OWASP ZAP
-      # --- CORREÇÃO: Usando a action específica para API Scan ---
-      uses: zaproxy/action-api-scan@v0.5.0
+      run: |
+        docker run --network=host \
+          -v ${{ github.workspace }}:/zap/wrk/:rw \
+          ghcr.io/zaproxy/zaproxy:stable \
+          zap-api-scan.py \
+            -t /zap/wrk/openapi.json \
+            -f openapi \
+            -r zap_report.html \
+            -d
+    
+    - name: Upload ZAP Report
+      uses: actions/upload-artifact@v4
+      if: always() # Sempre executa, mesmo que o passo anterior falhe
       with:
-        
-        # Esta action ENTENDE o parâmetro 'api_file_name' corretamente
-        target: 'openapi.json'
-        format: openapi
-        # O resto das configurações permanece o mesmo
-        fail_action: false
-        issue_title: 'Vulnerabilidade de API Encontrada pelo ZAP'
-        token: ${{ secrets.GITHUB_TOKEN }}
+        name: zap-scan-report
+        path: zap_report.html
