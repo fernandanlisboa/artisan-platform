@@ -25,6 +25,7 @@ class ProductDBModel(db.Model):
     category = relationship('CategoryDBModel', back_populates='products')
     order_items = relationship('OrderItemDBModel', back_populates='product')
     reviews = relationship('ReviewDBModel', back_populates='product')
+    cart_items = relationship('CartItemDBModel', back_populates='product')
 
     def __repr__(self):
         return f"<ProductDBModel(id='{self.product_id}', name='{self.name}')>"

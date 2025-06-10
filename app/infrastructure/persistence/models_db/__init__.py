@@ -8,3 +8,5 @@ from app.infrastructure.persistence.models_db.review_db_model import ReviewDBMod
 from app.infrastructure.persistence.models_db.order_db_model import OrderDBModel
 from app.infrastructure.persistence.models_db.order_item_db_model import OrderItemDBModel
 from app.infrastructure.persistence.models_db.message_db_model import MessageDBModel
+from app.infrastructure.persistence.models_db.cart_db_model import CartDBModel
+from app.infrastructure.persistence.models_db.cart_item_db_model import CartItemDBModel

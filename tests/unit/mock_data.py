@@ -12,8 +12,15 @@ class MockUserEntity:
         self.password = password or fake.password()
         self.status = status
         self.address_id = address_id
-        self.registration_date = registration_date or datetime.utcnow()
+        self.registration_date = registration_date or datetime.now()
 
+class MockArtisanEntity:
+    def __init__(self, artisan_id=None, store_name=None, phone=None, bio=None, status='active'):
+        self.artisan_id = artisan_id or str(uuid.uuid4())
+        self.store_name = store_name or fake.company()
+        self.phone = phone or fake.phone_number()
+        self.bio = bio or fake.text(max_nb_chars=200)
+        self.status = status
 class MockBuyerEntity:
     def __init__(self, buyer_id=None, full_name=None, phone=None, address=None):
         self.buyer_id = buyer_id or str(uuid.uuid4())
@@ -85,3 +92,20 @@ class MockFactory:
             values.update(override_values)
             
         return MockAddressEntity(**values)
+    
+    # create artisan method
+    @staticmethod
+    def create_artisan(override_values=None):
+        """Cria um MockArtisanEntity com valores aleatórios que podem ser sobrescritos"""
+        values = {
+            'artisan_id': str(uuid.uuid4()),
+            'store_name': fake.company(),
+            'phone': fake.phone_number(),
+            'bio': fake.text(max_nb_chars=200),
+            'status': 'active'
+        }
+        
+        if override_values:
+            values.update(override_values)
+            
+        return MockArtisanEntity(**values)

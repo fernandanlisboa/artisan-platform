@@ -24,7 +24,8 @@ class AddressDBModel(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     
     user = relationship('UserDBModel', back_populates='address', uselist=False)
-    
+    order = relationship('OrderDBModel', back_populates='delivery_address', uselist=False)
+
     def __init__(self, street: str, number: str, 
                  neighborhood: str, city: str, state: str,
                  zip_code: str, country: str = 'Brasil', address_id: str = None, complement: str = None):
