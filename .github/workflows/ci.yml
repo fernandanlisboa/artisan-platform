@@ -58,11 +58,8 @@ jobs:
       with:
         # O comando que você quer executar (upgrade, downgrade, check, etc.)
         dialect: "mysql"
-        alembic_ini: "alembic.ini"
-        
-        revision: head
-        
-        connection-uri: mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test
+        alembic_ini: "alembic.ini"       
+        # connection-uri: mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test
         pr_revisions_only: "true" 
 
     - name: Test with pytest
