@@ -106,7 +106,7 @@ class ArtisanRegistrationResponse(BaseModel):
             bio=artisan_entity.bio,
             status=user_entity.status,
             address=address_response_data,
-            registration_data=user_entity.registration_date
+            registration_date=user_entity.registration_date
         )
  
 class RegisterBuyerRequest(BaseModel):
@@ -126,7 +126,7 @@ class BuyerRegistrationResponse(BaseModel):
     full_name: str = Field(..., description="Nome completo do comprador.", example="Maria de Souza") # Alterado para full_name
     phone: Optional[str] = Field(None, description="Telefone de contato do comprador.", example="71999991111")
     status: str = Field(..., description="Status atual do usuário.", example="active")
-
+    registration_date: Optional[datetime] = Field(..., description="Data de registro do usuário.", example="2023-05-30T14:30:00")
     address: Optional[AddressResponse] = Field(None, description="Endereço principal do comprador.")
 
     class Config:
@@ -157,5 +157,6 @@ class BuyerRegistrationResponse(BaseModel):
             full_name=buyer_entity.full_name, # Alterado para full_name
             phone=buyer_entity.phone,
             status=user_entity.status,
+            registration_date=user_entity.registration_date if user_entity.registration_date else None, # Adicionado o mapeamento da data de registro
             address=address_response_data
         )
