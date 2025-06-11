@@ -19,7 +19,7 @@ class UserDBModel(db.Model):
     status = db.Column(db.String(20), nullable=False, default='active') # E.g., 'active', 'inactive', 'pending'
 
     # Foreign Key to Address (a user can have a primary address)
-    address_id = db.Column(db.String(36), db.ForeignKey('addresses.address_id'), unique=True, nullable=True, name='address_id') # FK as per diagram
+    address_id = db.Column(db.String(36), db.ForeignKey('addresses.address_id'), unique=False, nullable=True, name='address_id') # FK as per diagram
     
     # Relationship with AddressDBModel
     # 'uselist=False' implies a one-to-one or one-to-many from Address's perspective (one Address object for this User)
