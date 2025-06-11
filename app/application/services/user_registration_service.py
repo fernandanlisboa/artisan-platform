@@ -10,6 +10,7 @@ from app.domain.models.user import UserEntity as User
 from app.domain.models.artisan import ArtisanEntity
 from app.domain.models.buyer import BuyerEntity
 
+import re
 
 class UserRegistrationService:
     
@@ -50,6 +51,23 @@ class UserRegistrationService:
             return False, "Password must contain at least one special character"
         
         return True, ""
+    
+    def __is_valid_email_format(self, email: str) -> bool:
+        """
+        Check if the email format is valid.
+        
+        Args:
+            email: Email string to validate
+            
+        Returns:
+            bool: True if valid, False otherwise
+        """
+        #TODO: check email local part, domain and length
+        if not email or not isinstance(email, str):
+            return False
+        
+        email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+        return re.match(email_regex, email) is not None
     
     def register_artisan(self, request_data: RegisterArtisanRequest) -> ArtisanRegistrationResponse:
         """
@@ -144,6 +162,9 @@ class UserRegistrationService:
             saved_address = self.address_repository.save(address_entity)
             print("New address saved: ", saved_address)
         
+        if not self.__is_valid_email_format(request_data.email):
+            raise ValueError("Invalid email format")
+    
         #check email already exists
         if self.user_repository.get_by_email(request_data.email) is not None:
             raise ValueError("Email already registered.")
