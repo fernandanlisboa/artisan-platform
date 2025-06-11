@@ -216,7 +216,7 @@ class ArtisanRegistrationResource(Resource): # HERDA DE flask_restx.Resource
 
 # --- DEFINIÇÃO DO MODELO DE REQUISIÇÃO DE COMPRADOR PARA FLASK-RESTX ---
 buyer_registration_request_model = auth_ns.model('RegisterBuyerRequest', {
-    'email': fields.String(required=True, description='User email', example='buyer@example.com'),
+    'email': fields.String(required=True, description='User email', example='buyer@example.com', pattern=r'^\S+@\S+\.\S+$'),
     'password': fields.String(required=True, description='User password', min_length=8),
     'full_name': fields.String(required=True, description='Buyer\'s full name', max_length=255, example='John Doe'),
     'phone': fields.String(description='Buyer\'s phone number', required=False, example='5571999998888'),
