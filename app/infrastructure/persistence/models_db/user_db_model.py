@@ -1,4 +1,5 @@
 # app/infrastructure/persistence/models_db/user_db_model.py
+from typing import Any
 from app import db
 import uuid
 import datetime
@@ -56,3 +57,6 @@ class UserDBModel(db.Model):
         
     def __repr__(self):
         return f"<UserDBModel(user_id='{self.user_id}', email='{self.email}')>"
+    
+    def __getattribute__(self, name: str) -> Any:
+        return super().__getattribute__(name)
