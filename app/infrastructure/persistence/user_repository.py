@@ -36,7 +36,7 @@ class UserRepository(IUserRepository):
         #TODO: check also if the user is active
         user_db_model = UserDBModel.query.filter_by(email=email).first()
         if user_db_model:
-            user_entity = UserEntity(user_db_model)
+            user_entity = UserEntity.from_db_model(user_db_model)
             return user_entity
         
         return None
