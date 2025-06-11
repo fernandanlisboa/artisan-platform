@@ -9,3 +9,4 @@ pytest
 pydantic
 flask_restx
 faker
+email-validator
