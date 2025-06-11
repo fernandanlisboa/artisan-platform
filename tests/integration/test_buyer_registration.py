@@ -106,7 +106,7 @@ class TestBuyerRegistrationIntegration:
         # Assert
         assert response.status_code == 400
         data = json.loads(response.data)
-        assert "password" in data.get('message', '').lower()
+        assert "password" in data.get('errors', '')
 
     def test_address_reuse(self, client, session, valid_buyer_data):
         """
