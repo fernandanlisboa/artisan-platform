@@ -37,7 +37,7 @@ class TestUserDTOs:
             "password": "ValidPassword123!",
             "full_name": "Comprador Teste",
             "phone": "(71) 98765-4321",
-            "address": RegisterAddressRequest(**valid_address_data)
+            "address": valid_address_data  # Passar o dicionário diretamente, não um objeto instanciado
         }
         
         # Act & Assert - Deve lançar ValidationError

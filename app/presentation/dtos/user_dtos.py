@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr  # Importar EmailStr
 from typing import Optional
 from datetime import datetime
 from app.domain.models.artisan import ArtisanEntity
@@ -111,7 +111,7 @@ class ArtisanRegistrationResponse(BaseModel):
  
 class RegisterBuyerRequest(BaseModel):
     """DTO para a requisição de registro de um comprador, com endereço aninhado."""
-    email: str = Field(..., example="buyer@example.com", max_length=120)
+    email: EmailStr = Field(...)  # EmailStr faz validação automática
     password: str = Field(..., min_length=8, max_length=64)
     full_name: str = Field(..., example="João da Silva", max_length=255) # Alterado para full_name
     phone: Optional[str] = Field(None, example="71988887777", max_length=20)
