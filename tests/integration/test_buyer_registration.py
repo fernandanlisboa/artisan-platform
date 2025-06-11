@@ -178,7 +178,8 @@ class TestBuyerRegistrationIntegration:
         for invalid_email in invalid_emails:
             # Modifica o email para um formato inválido
             valid_buyer_data['email'] = invalid_email
-            
+            if invalid_email == "a" * 65 + "@example.com":
+                print("x")
             # Act - Faz a requisição para a API
             response = client.post(
                 '/api/auth/register/buyer',
@@ -190,7 +191,7 @@ class TestBuyerRegistrationIntegration:
             assert response.status_code == 400, f"Email {invalid_email} deveria ser rejeitado"
             data = json.loads(response.data)
             assert "Invalid email format" in data.get('message', '') or \
-                   "email" in data.get('errors', '').lower(), \
+                   "email" in data.get('errors', ''), \
                    f"Mensagem de erro para {invalid_email} não contém referência ao email"
             
             # Verifica que nenhum usuário foi criado com este email
