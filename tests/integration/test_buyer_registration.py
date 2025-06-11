@@ -163,3 +163,37 @@ class TestBuyerRegistrationIntegration:
         
         # Assert
         assert response.status_code == 400
+
+    def test_invalid_email_format(self, client, session, valid_buyer_data):
+        """Verifica se a API rejeita emails com formato inválido."""
+        # Arrange - Teste com diversos formatos inválidos
+        invalid_emails = [
+            "plainaddress",       # Sem @ e domínio
+            "@missinglocal.org",  # Sem parte local
+            "user@.com",          # Domínio inválido
+            "user@domain",        # Sem TLD
+            "a" * 65 + "@example.com"  # Parte local muito longa
+        ]
+        
+        for invalid_email in invalid_emails:
+            # Modifica o email para um formato inválido
+            valid_buyer_data['email'] = invalid_email
+            
+            # Act - Faz a requisição para a API
+            response = client.post(
+                '/api/auth/register/buyer',
+                json=valid_buyer_data,
+                content_type='application/json'
+            )
+            
+            # Assert - Verifica se foi rejeitado corretamente
+            assert response.status_code == 400, f"Email {invalid_email} deveria ser rejeitado"
+            data = json.loads(response.data)
+            assert "Invalid email format" in data.get('message', '') or \
+                   "email" in data.get('errors', '').lower(), \
+                   f"Mensagem de erro para {invalid_email} não contém referência ao email"
+            
+            # Verifica que nenhum usuário foi criado com este email
+            from app.infrastructure.persistence.models_db.user_db_model import UserDBModel
+            user = UserDBModel.query.filter_by(email=invalid_email).first()
+            assert user is None, f"Um usuário foi criado com email inválido: {invalid_email}"

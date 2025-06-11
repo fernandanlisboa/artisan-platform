@@ -100,6 +100,24 @@ class TestBuyerRegistration(BaseUserRegistrationTest):
         self._assert_common_validations(
             service, valid_buyer_request, mock_repositories, "Email already registered")
     
+    @pytest.mark.parametrize("invalid_email", [
+        "plainaddress",       # Sem @ e domínio
+        "@missinglocal.org",  # Sem parte local
+        "user@.com",          # Domínio inválido
+        "user@domain",        # Sem TLD
+    ])
+    def test_register_buyer_with_invalid_email(self, mock_repositories, service, invalid_email):
+        """Testa validação de email inválido."""
+        request = RegisterBuyerRequest(
+            email=invalid_email,
+            password=f"Valid{fake.random_int(10, 99)}Password!{fake.random_letter().upper()}",
+            full_name=fake.name(),
+            phone=self._generate_valid_phone(),
+            address=MockFactory().create_address()
+        )
+        self._assert_common_validations(
+            service, request, mock_repositories, "Invalid email format")
+    
     def test_register_buyer_with_invalid_password(self, mock_repositories, service):
         """Testa diferentes formatos de senha inválida usando o método da classe base."""
         def create_request(password):
