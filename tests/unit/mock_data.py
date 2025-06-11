@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 from faker import Faker
 
@@ -12,7 +12,7 @@ class MockUserEntity:
         self.password = password or fake.password()
         self.status = status
         self.address_id = address_id
-        self.registration_date = registration_date or datetime.now()
+        self.registration_date = registration_date or datetime.now(timezone.utc)
 
 class MockArtisanEntity:
     def __init__(self, artisan_id=None, store_name=None, phone=None, bio=None, status='active'):
