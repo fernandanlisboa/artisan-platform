@@ -122,7 +122,13 @@ def address_entity_to_dict(address_entity):
         "country": address_entity.country
     }
 
-# Exemplo de uso corrigido
-mock_address = MockFactory().create_address()
-address_dict = address_entity_to_dict(mock_address)
-request = RegisterBuyerRequest(email="test@example.com", ..., address=address_dict)  # Correto
+# Exemplo de uso:
+# mock_address = MockFactory().create_address()
+# address_dict = address_entity_to_dict(mock_address)
+# request = RegisterBuyerRequest(
+#     email="test@example.com", 
+#     password="SecurePwd123!", 
+#     full_name="Teste da Silva",
+#     phone="71999998888",
+#     address=address_dict
+# )
