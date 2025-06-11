@@ -113,18 +113,15 @@ class TestBuyerRegistrationIntegration:
         Verifica se endereços idênticos são reutilizados ao invés de duplicados.
         Isso testa uma regra de negócio importante para manter a integridade dos dados.
         """
-        # Arrange - Primeiro registro
         response = client.post(
             '/api/auth/register/buyer',
             json=valid_buyer_data,
             content_type='application/json'
         )
         data1 = json.loads(response.data)
+        # Assert
+        assert response.status_code == 201, "Registro do primeiro comprador falhou!"
         
-        # Obtém o address_id do primeiro registro
-        from app.infrastructure.persistence.models_db.user_db_model import UserDBModel
-        user1 = UserDBModel.query.filter_by(email=valid_buyer_data['email']).first()
-        address_id1 = user1.address_id
         
         # Modifica o email para criar outro comprador com o mesmo endereço
         valid_buyer_data['email'] = f"another.buyer.{uuid.uuid4().hex[:8]}@example.com"
@@ -141,9 +138,8 @@ class TestBuyerRegistrationIntegration:
         assert response.status_code == 201
         
         # Verifica se o segundo usuário foi criado com o mesmo address_id
-        user2 = UserDBModel.query.filter_by(email=valid_buyer_data['email']).first()
-        assert user2 is not None
-        assert user2.address_id == address_id1, "O endereço não foi reutilizado"
+        assert data2 is not None, "usário com mesmo endereço não criado!"
+        assert data1["address"]["address_id"] == data2["address"]["address_id"], "O endereço não foi reutilizado"
         
         # Verifica quantos registros de endereço existem com esses dados
         from app.infrastructure.persistence.models_db.address_db_model import AddressDBModel
