@@ -107,14 +107,22 @@ class TestBuyerRegistration(BaseUserRegistrationTest):
         "user@domain",        # Sem TLD
     ])
     def test_register_buyer_with_invalid_email(self, mock_repositories, service, invalid_email):
-        """Testa validação de email inválido."""
-        request = RegisterBuyerRequest(
-            email=invalid_email,
-            password=f"Valid{fake.random_int(10, 99)}Password!{fake.random_letter().upper()}",
-            full_name=fake.name(),
-            phone=self._generate_valid_phone(),
-            address=MockFactory().create_address()
-        )
+        """Testa validação de email inválido no serviço."""
+        # Criar um mock em vez de um objeto Pydantic real
+        request = Mock()
+        request.email = invalid_email
+        request.password = f"Valid{fake.random_int(10, 99)}Password!{fake.random_letter().upper()}"
+        request.full_name = fake.name()
+        request.phone = self._generate_valid_phone()
+        
+        # Criar um mock para o endereço também
+        request.address = Mock()
+        
+        # Configurar o repositório para não encontrar email já existente
+        # para garantir que chegue na validação de formato
+        mock_repositories['user_repo'].get_by_email.return_value = None
+        
+        # Agora podemos testar a validação do serviço
         self._assert_common_validations(
             service, request, mock_repositories, "Invalid email format")
     
