@@ -15,7 +15,7 @@ class UserRepository(IUserRepository):
             email=user_entity.email,
             password_hash=user_entity.password, 
             status=user_entity.status,
-            registration_date=datetime.utcnow(),
+            # registration_date=datetime.utcnow,
             address_id=user_entity.address_id  # Added address_id
         )
         print("User DB Model: ", user_db_model)
@@ -33,6 +33,7 @@ class UserRepository(IUserRepository):
     
     def get_by_email(self, email: str) -> UserEntity:
         """Retrieves a User entity by email."""
+        #TODO: check also if the user is active
         user_db_model = UserDBModel.query.filter_by(email=email).first()
         if user_db_model:
             user_entity = UserEntity(user_db_model)
