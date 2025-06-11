@@ -54,20 +54,47 @@ class UserRegistrationService:
     
     def __is_valid_email_format(self, email: str) -> bool:
         """
-        Check if the email format is valid.
+        Verifica se o formato do email é válido, incluindo casos específicos.
         
         Args:
-            email: Email string to validate
+            email: Email para validar
             
         Returns:
-            bool: True if valid, False otherwise
+            bool: True se o email for válido, False caso contrário
         """
-        #TODO: check email local part, domain and length
         if not email or not isinstance(email, str):
             return False
         
+        # Verificação básica usando regex
         email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-        return re.match(email_regex, email) is not None
+        if not re.match(email_regex, email):
+            return False
+        
+        # Extrai parte local e domínio
+        local_part, domain = email.split('@', 1)
+        
+        # Verifica tamanho da parte local (RFC 5321)
+        if len(local_part) > 64:
+            return False
+        
+        # Verifica tamanho do email completo
+        if len(email) > 320:
+            return False
+        
+        # Verifica presença de domínio top-level (TLD)
+        domain_parts = domain.split('.')
+        if len(domain_parts) < 2 or not domain_parts[-1]:
+            return False
+        
+        # Verifica se não há pontos consecutivos no domínio
+        if '..' in domain:
+            return False
+        
+        # Verifica se o domínio não começa ou termina com ponto
+        if domain.startswith('.') or domain.endswith('.'):
+            return False
+        
+        return True
     
     def register_artisan(self, request_data: RegisterArtisanRequest) -> ArtisanRegistrationResponse:
         """
@@ -186,8 +213,7 @@ class UserRegistrationService:
         buyer_entity = BuyerEntity(
             buyer_id=saved_user_entity.user_id, # O ID do comprador é o mesmo ID do usuário
             full_name=request_data.full_name,
-            phone=request_data.phone,
-            address=request_data.address
+            phone=request_data.phone
         )
 
         print("Buyer Entity: ", buyer_entity)
