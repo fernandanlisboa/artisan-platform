@@ -12,6 +12,15 @@ class UserEntity(ABC):
             self.registration_date = datetime.utcnow()
         # Hash the password during entity creation
         # self.password_hash = self._hash_password(password)
-        
+    
+    @classmethod
+    def from_db_model(cls, db_model):
+        return cls(
+            user_id=db_model.user_id,
+            email=db_model.email,
+            password=db_model.password_hash,
+            status=db_model.status,
+            address_id=db_model.address_id
+        )
     def __repr__(self):
         return f"UserEntity(user_id={self.user_id}, email={self.email}, status={self.status}, address_id={self.address_id})"
