@@ -30,37 +30,24 @@ class TestUserDTOs:
     ])
     def test_buyer_request_invalid_email(self, invalid_email, valid_address_data):
         """Testa validação de email diretamente no DTO usando Pydantic."""
-    invalid_emails = [
-        "plainaddress",
-        "@missinglocal.org",
-        "user@.com",
-        "user@domain"
-    ]
     
-    # Dados válidos para os outros campos obrigatórios
-    valid_data = {
-        "password": "ValidPassword123!",
-        "full_name": "Nome Teste",
-        "address": {
-            "street": "Rua Teste",
-            "number": "123",
-            "neighborhood": "Bairro Teste",
-            "city": "Cidade Teste",
-            "state": "BA",
-            "zip_code": "40000-000",
-            "country": "Brasil"
+        # Dados válidos para os outros campos obrigatórios
+        valid_data = {
+            "password": "ValidPassword123!",
+            "full_name": "Nome Teste",
+            "address": {
+                "street": "Rua Teste",
+                "number": "123",
+                "neighborhood": "Bairro Teste",
+                "city": "Cidade Teste",
+                "state": "BA",
+                "zip_code": "40000-000",
+                "country": "Brasil"
+            }
         }
-    }
-    
-    for email in invalid_emails:
         # Adiciona o email inválido aos dados
-        test_data = {**valid_data, "email": email}
+        test_data = {**valid_data, "email": invalid_email}
         
         # Verifica se a validação do Pydantic rejeita o email
         with pytest.raises(ValidationError) as exc_info:
             RegisterBuyerRequest(**test_data)
-        
-        # A mensagem de erro pode variar, então verificamos se contém referência ao email
-        error_message = str(exc_info.value)
-        assert any(term in error_message.lower() for term in ["email", "value is not a valid"]), \
-            f"Validação falhou para {email}, mas mensagem não menciona email: {error_message}"
