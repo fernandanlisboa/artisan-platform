@@ -67,7 +67,8 @@ class BaseProductCreationTest:
             'name': product.name,
             'description': product.description,
             'price': product.price,
-            'stock': product.stock
+            'stock': product.stock,
+            'category_id': test_ids['category_id'],
             # 'images': []  # URLs de imagens, se necessário
         }
 

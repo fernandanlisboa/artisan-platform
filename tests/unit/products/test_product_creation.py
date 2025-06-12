@@ -86,10 +86,9 @@ class TestProductCreation(BaseProductCreationTest):
         artisan_id, invalid_request = valid_product_request
         invalid_request['price'] = -10.0
         
-        # Act & Assert
-        # Exemplo: se o método correto for create_artisan_product
+        request = RegisterProductRequest(**invalid_request)
         with pytest.raises(ValueError):
-            service.create_artisan_product(artisan_id, invalid_request)
+            service.create_artisan_product(artisan_id, request)
     
     def test_create_product_with_missing_name(self, service, mock_repositories, valid_product_request):
         """Testa a criação de um produto sem nome."""
