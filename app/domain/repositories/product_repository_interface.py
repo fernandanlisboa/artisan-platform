@@ -17,3 +17,24 @@ class IProductRepository(ABC):
         :return: The saved ProductEntity instance.
         """
         pass
+    
+    @abstractmethod
+    def get_product_by_id(self, product_id: str) -> Optional[ProductEntity]:
+        """
+        Retrieve a product by its ID.
+        
+        :param product_id: ID of the product to retrieve.
+        :return: ProductEntity instance if found, None otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def get_artisan_product_by_name(self, artisan_id: str, product_name: str) -> Optional[ProductEntity]:
+        """
+        Retrieve a product by artisan ID and product name.
+        
+        :param artisan_id: ID of the artisan.
+        :param product_name: Name of the product to retrieve.
+        :return: ProductEntity instance if found, None otherwise.
+        """
+        pass
