@@ -52,7 +52,7 @@ class AddressResponse(BaseModel):
     country: str = Field("Brasil", example="Brasil")
 
     class Config:
-        orm_mode = True # Útil se você for popular diretamente de um AddressDBModel
+        from_attributes = True # Útil se você for popular diretamente de um AddressDBModel
                         # ou se sua AddressEntity tiver atributos compatíveis
 # DTO para a Resposta do Registro de Artesão
 class ArtisanRegistrationResponse(BaseModel):
@@ -67,9 +67,8 @@ class ArtisanRegistrationResponse(BaseModel):
     address: Optional[AddressResponse] = Field(None, description="Endereço principal do artesão.")
 
     class Config:
-        # orm_mode = True pode ser útil se você estiver construindo este DTO
-        # a partir de um objeto que combina UserDBModel e ArtisanDBModel.
-        # Se estiver usando entidades de domínio puras, um método factory é mais explícito.
+        # from_attributes = True pode ser útil se você estiver construindo este DTO
+        # diretamente de modelos ORM
         pass
 
     # Método para criar o DTO a partir de suas entidades de domínio
