@@ -1,7 +1,8 @@
 
 from app.domain.repositories.category_repository_interface import ICategoryRepository
-
 from app.domain.models.category import CategoryEntity
+from app.infrastructure.persistence.models_db.category_db_model import CategoryDBModel
+from app import db
 from typing import Optional
 
 class CategoryRepository(ICategoryRepository):
@@ -12,13 +13,11 @@ class CategoryRepository(ICategoryRepository):
     def __init__(self):
         super().__init__()
 
-    def get_category_by_id(self, category_id: str) -> Optional[CategoryEntity]:
+    def get_by_id(self, category_id: str) -> Optional[CategoryEntity]:
         """
-        Retrieve a category by its ID.
-        
-        :param category_id: The ID of the category to retrieve.
-        :return: An instance of CategoryEntity if found, otherwise None.
+        Gets a Category by ID and converts it to a pure domain entity.
         """
-        # This method should interact with the database to fetch the category
-        # For now, we return None as a placeholder
+        category_db_model = CategoryDBModel.query.get(category_id)
+        if category_db_model:
+            return CategoryEntity.from_db_model(category_db_model)
         return None
