@@ -1,5 +1,6 @@
 import pytest
 # Importar apenas a classe BaseProductCreationTest
+from app.presentation.dtos.product_dtos import RegisterProductRequest
 from tests.unit.products.base_product_creation_test import BaseProductCreationTest
 
 # mock_factory já é acessível dentro da classe pois é definido no módulo importado
@@ -45,28 +46,38 @@ class TestProductCreation(BaseProductCreationTest):
         """Testa a criação de um produto com sucesso pelo serviço."""
         # Arrange
         from tests.unit.products.base_product_creation_test import mock_factory
-        mock_repositories['artisan_repo'].get_by_id.return_value = mock_factory.artisan.create(
-            artisan_id=test_ids['artisan_id']
+        mock_repositories['artisan_repo'].get_artisan_by_id.return_value = (
+            mock_factory.artisan.create(
+                artisan_id=test_ids['artisan_id']
+            )
         )
-        mock_repositories['category_repo'].get_category_by_id.return_value = mock_factory.category.create(
-            category_id=test_ids['category_id']
+        mock_repositories['category_repo'].get_category_by_id.return_value = (
+            mock_factory.category.create(
+                category_id=test_ids['category_id']
+            )
         )
-        mock_repositories['product_repo'].create.return_value = mock_factory.product.create(
-            product_id=test_ids['product_id'],
-            **valid_product_request
+        artisan_id, data = valid_product_request
+        request = {"artisan_id": artisan_id, **data}
+        result = mock_repositories['product_repo'].create.return_value = (
+            mock_factory.product.create(
+                product_id=test_ids['product_id'],
+                **request
+            )
         )
-        
+        # Mock get_artisan_product_by_name to simulate no existing product with the same name
+        mock_repositories['product_repo'].get_artisan_product_by_name.return_value = None
+        request = RegisterProductRequest(**data, category_id=test_ids['category_id'])
         # Act
-        result = service.create_product(valid_product_request)
+        result = service.create_artisan_product(artisan_id, request)
         
         # Assert
         assert result is not None
         assert result.product_id == test_ids['product_id']
-        assert result.name == valid_product_request['name']
+        assert result.name == valid_product_request[1]['name']
         
         # Verify repository calls
-        mock_repositories['artisan_repo'].get_by_id.assert_called_once_with(valid_product_request['artisan_id'])
-        mock_repositories['category_repo'].get_category_by_id.assert_called_once_with(valid_product_request['category_id'])
+        mock_repositories['artisan_repo'].get_artisan_by_id.assert_called_once_with(valid_product_request[0])
+        mock_repositories['category_repo'].get_category_by_id.assert_called_once_with(test_ids['category_id'])
         mock_repositories['product_repo'].create.assert_called_once()
     
     def test_create_product_with_invalid_price(self, service, mock_repositories, valid_product_request):

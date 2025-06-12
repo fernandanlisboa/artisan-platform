@@ -30,6 +30,7 @@ class BaseProductCreationTest:
         return ArtisanProductService(
             product_repository=mock_repositories['product_repo'],
             category_repository=mock_repositories['category_repo'],
+            artisan_repository=mock_repositories['artisan_repo']
         )
     
     @pytest.fixture

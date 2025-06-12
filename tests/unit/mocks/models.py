@@ -55,7 +55,7 @@ class MockProductEntity(BaseMockEntity):
         self.artisan_id = artisan_id or str(uuid.uuid4())
         self.category_id = category_id or str(uuid.uuid4())
         self.status = status
-        self.images = image or ''
+        self.image_url = image or ''
         self.registration_date = creation_date or datetime.now(timezone.utc)
         
 class MockCategoryEntity(BaseMockEntity):

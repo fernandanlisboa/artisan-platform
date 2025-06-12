@@ -14,7 +14,7 @@ class CategoryDTO(BaseModel):
         arbitrary_types_allowed=True  # Allow arbitrary types
     )
 
-    category_id: Optional[int] = Field(None, description="ID of the category")
+    category_id: Optional[str] = Field(None, description="ID of the category")
     name: str = Field(..., description="Name of the category")
     description: Optional[str] = Field(None, description="Description of the category")
 
