@@ -1,6 +1,6 @@
 from app.domain.repositories.product_repository_interface import IProductRepository
 from app import db
-
+from app.domain.models.product import ProductEntity
 from app.infrastructure.persistence.models_db.product_db_model import ProductDBModel
 
 class ProductRepository(IProductRepository):
@@ -32,4 +32,17 @@ class ProductRepository(IProductRepository):
             db.session.rollback()
         
         print("Product Entity after save: ", product_entity)
-        return product_entity  # Retorna a entidade pura que foi salva
+        return product_entity  
+    
+    def get_product_by_id(self, product_id):
+        """
+        Retrieves a Product entity by its ID.
+        Converts the ORM model to a pure domain entity.
+        """
+        product_db_model = ProductDBModel.query.get(product_id)
+        
+        if product_db_model:
+            return ProductEntity.from_db_model(product_db_model)
+        return None
+        
+        
