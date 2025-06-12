@@ -45,4 +45,14 @@ class ProductRepository(IProductRepository):
             return ProductEntity.from_db_model(product_db_model)
         return None
         
+    def get_artisan_product_by_name(self, artisan_id, product_name):
+        """
+        Retrieves a Product entity by its name and artisan ID.
+        Converts the ORM model to a pure domain entity.
+        """
+        product_db_model = ProductDBModel.query.filter_by(
+            artisan_id=artisan_id, name=product_name).first()
         
+        if product_db_model:
+            return ProductEntity.from_db_model(product_db_model)
+        return None
