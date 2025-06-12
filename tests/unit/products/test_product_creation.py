@@ -1,21 +1,26 @@
 import pytest
+# Importar apenas a classe BaseProductCreationTest
 from tests.unit.products.base_product_creation_test import BaseProductCreationTest
 
+# mock_factory já é acessível dentro da classe pois é definido no módulo importado
 class TestProductCreation(BaseProductCreationTest):
     """Testes para a criação de produtos usando o ProductService."""
 
     @pytest.fixture
     def product_factory(self):
         """Retorna a factory de produtos do mock_factory."""
+        # A variável mock_factory já está acessível no escopo do módulo
+        from tests.unit.products.base_product_creation_test import mock_factory
         return mock_factory.product
     
     def test_create_product_successfully(self, service, mock_repositories, valid_product_request, test_ids):
         """Testa a criação de um produto com sucesso pelo serviço."""
         # Arrange
+        from tests.unit.products.base_product_creation_test import mock_factory
         mock_repositories['artisan_repo'].get_by_id.return_value = mock_factory.artisan.create(
             artisan_id=test_ids['artisan_id']
         )
-        mock_repositories['category_repo'].get_by_id.return_value = mock_factory.category.create(
+        mock_repositories['category_repo'].get_category_by_id.return_value = mock_factory.category.create(
             category_id=test_ids['category_id']
         )
         mock_repositories['product_repo'].create.return_value = mock_factory.product.create(
@@ -33,40 +38,50 @@ class TestProductCreation(BaseProductCreationTest):
         
         # Verify repository calls
         mock_repositories['artisan_repo'].get_by_id.assert_called_once_with(valid_product_request['artisan_id'])
-        mock_repositories['category_repo'].get_by_id.assert_called_once_with(valid_product_request['category_id'])
+        mock_repositories['category_repo'].get_category_by_id.assert_called_once_with(valid_product_request['category_id'])
         mock_repositories['product_repo'].create.assert_called_once()
     
     def test_create_product_with_invalid_price(self, service, mock_repositories, valid_product_request):
         """Testa a criação de um produto com preço inválido."""
         # Arrange
-        invalid_request = dict(valid_product_request)
+        artisan_id, invalid_request = valid_product_request
         invalid_request['price'] = -10.0
         
         # Act & Assert
+        # Exemplo: se o método correto for create_artisan_product
         with pytest.raises(ValueError):
-            service.create_product(invalid_request)
+            service.create_artisan_product(artisan_id, invalid_request)
     
     def test_create_product_with_missing_name(self, service, mock_repositories, valid_product_request):
         """Testa a criação de um produto sem nome."""
         # Arrange
-        invalid_request = dict(valid_product_request)
+        artisan_id, invalid_request = valid_product_request
         invalid_request['name'] = ""
         
         # Act & Assert
         with pytest.raises(ValueError):
-            service.create_product(invalid_request)
+            service.create_artisan_product(artisan_id, invalid_request)
     
     def test_create_product_with_invalid_category(self, service, mock_repositories, valid_product_request):
         """Testa a criação de um produto com categoria inválida."""
         # Arrange
-        mock_repositories['category_repo'].get_by_id.return_value = None
+        mock_repositories['category_repo'].get_category_by_id.return_value = None
         
+        # Desempacotar corretamente a tupla (artisan_id, product_data)
+        artisan_id, product_data = valid_product_request
+        
+        # Act & Assert
+        with pytest.raises(ValueError):
+            # Passando os dois argumentos separadamente como esperado
+            service.create_artisan_product(artisan_id, product_data)
             
     def test_create_product_with_nonexistent_artisan(self, service, mock_repositories, valid_product_request):
         """Testa a criação de um produto para um artesão que não existe."""
         # Arrange
-        mock_repositories['artisan_repo'].get_by_id.return_value = None
+        mock_repositories['artisan_repo'].get_category_by_id.return_value = None
+        artisan_id, product_data = valid_product_request
         
         # Act & Assert
         with pytest.raises(ValueError):
-            service.create_product(valid_product_request)
+            # Passando os dois argumentos separadamente como esperado
+            service.create_artisan_product(artisan_id, product_data)

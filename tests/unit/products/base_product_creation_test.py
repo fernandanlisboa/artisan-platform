@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import Mock
 import uuid
-from app.application.services.artisan_product_service import ProductService
+from app.application.services.artisan_product_service import ArtisanProductService
 from app.domain.repositories.product_repository_interface import IProductRepository
 from app.domain.repositories.category_repository_interface import ICategoryRepository
 from app.domain.repositories.artisan_repository_interface import IArtisanRepository
@@ -27,10 +27,9 @@ class BaseProductCreationTest:
     @pytest.fixture
     def service(self, mock_repositories):
         """Cria o serviço de produto com repositórios mockados."""
-        return ProductService(
+        return ArtisanProductService(
             product_repository=mock_repositories['product_repo'],
             category_repository=mock_repositories['category_repo'],
-            artisan_repository=mock_repositories['artisan_repo']
         )
     
     @pytest.fixture
@@ -63,13 +62,11 @@ class BaseProductCreationTest:
     def valid_product_request(self, test_ids):
         """Cria uma requisição de produto válida para testes."""
         product = mock_factory.product.create()
-        return {
+        return test_ids['artisan_id'], {
             'name': product.name,
             'description': product.description,
             'price': product.price,
-            'stock': product.stock,
-            'artisan_id': test_ids['artisan_id'],
-            'category_id': test_ids['category_id'],
-            'images': []  # URLs de imagens, se necessário
+            'stock': product.stock
+            # 'images': []  # URLs de imagens, se necessário
         }
 
