@@ -18,7 +18,24 @@ class ProductEntity:
         self.registration_date = registration_date if registration_date else datetime.utcnow()
         self.status = status
         
+    @classmethod
+    def from_db_model(cls, db_model: Any) -> 'ProductEntity':
+        """
+        Creates a ProductEntity instance from a database model.
         
+        :param db_model: The database model instance containing product data.
+        :return: An instance of ProductEntity.
+        """
+        return cls(
+            product_id=db_model.product_id,
+            name=db_model.name,
+            description=db_model.description,
+            price=db_model.price,
+            stock=db_model.stock,
+            image_url=db_model.image_url,
+            registration_date=db_model.registration_date,
+            status=db_model.status
+        )
     
     def __repr__(self) -> str:
         pass
