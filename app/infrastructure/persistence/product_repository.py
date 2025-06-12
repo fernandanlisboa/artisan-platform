@@ -7,7 +7,7 @@ class ProductRepository(IProductRepository):
     def __init__(self):
         super().__init__()
 
-    def create_artisan_product(self, product_entity):
+    def create(self, product_entity):
         """
         Saves a Product entity to the database.
         Converts the pure domain entity to a database model before saving.

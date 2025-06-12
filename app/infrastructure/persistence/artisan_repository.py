@@ -1,6 +1,6 @@
 from app.domain.repositories.artisan_repository_interface import IArtisanRepository
 from app import db
-
+from app.domain.models.artisan import ArtisanEntity
 from app.infrastructure.persistence.models_db.artisan_db_model import ArtisanDBModel
 
 class ArtisanRepository(IArtisanRepository):
@@ -30,3 +30,15 @@ class ArtisanRepository(IArtisanRepository):
         
         print("Artisan Entity after save: ", artisan_entity)
         return artisan_entity # Retorna a entidade pura que foi salva
+    
+    def get_artisan_by_id(self, artisan_id):
+        """
+        Retrieves an Artisan entity by its ID.
+        Converts the ORM model to a pure domain entity.
+        """
+        artisan_db_model = ArtisanDBModel.query.get(artisan_id)
+        
+        if artisan_db_model:
+            return artisan_db_model.to_domain_entity()
+
+        return None

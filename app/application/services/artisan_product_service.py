@@ -5,8 +5,7 @@ from app.presentation.dtos.product_dtos import RegisterProductRequest, ResponseR
 class ArtisanProductService:
     def __init__(self, product_repository: IProductRepository, category_repository: ICategoryRepository):
         self.product_repository = product_repository
-        self.category_repository = category_repository
-        
+        self.category_repository = category_repository      
 
     def create_artisan_product(self, artisan_id: str, product_data: RegisterProductRequest) -> ResponseRegisterProduct:
         new_product = ProductEntity(
@@ -28,7 +27,7 @@ class ArtisanProductService:
         if self.product_repository.get_artisan_product_by_name(artisan_id, new_product.name):
             raise ValueError("Product with this name already exists for this artisan")
         try:
-            saved_product = self.product_repository.create_artisan_product(new_product)
+            saved_product = self.product_repository.create(new_product)
         except Exception as e:
             print(f"Error saving product: {e}")
             raise

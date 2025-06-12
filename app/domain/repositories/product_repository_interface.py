@@ -9,7 +9,7 @@ class IProductRepository(ABC):
     """
     
     @abstractmethod
-    def create_artisan_product(self, product_entity: ProductEntity) -> ProductEntity:
+    def create(self, product_entity: ProductEntity) -> ProductEntity:
         """
         Save a product to the repository.
         

@@ -46,17 +46,17 @@ class MockAddressEntity(BaseMockEntity):
 class MockProductEntity(BaseMockEntity):
     def __init__(self, product_id=None, name=None, description=None, price=None,
                 stock=None, artisan_id=None, category_id=None, 
-                status='active', images=None, creation_date=None):
+                status='active', image=None, creation_date=None):
         self.product_id = product_id or str(uuid.uuid4())
-        self.name = name or fake.catch_phrase()
+        self.name = name or fake.color_name() + " " + fake.word().capitalize()
         self.description = description or fake.paragraph()
         self.price = price or round(random.uniform(10.0, 500.0), 2)
         self.stock = stock or random.randint(1, 100)
         self.artisan_id = artisan_id or str(uuid.uuid4())
         self.category_id = category_id or str(uuid.uuid4())
         self.status = status
-        self.images = images or []
-        self.creation_date = creation_date or datetime.now(timezone.utc)
+        self.images = image or ''
+        self.registration_date = creation_date or datetime.now(timezone.utc)
         
 class MockCategoryEntity(BaseMockEntity):
     def __init__(self, category_id=None, name=None, description=None, parent_id=None):

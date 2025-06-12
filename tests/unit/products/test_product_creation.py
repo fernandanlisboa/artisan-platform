@@ -13,7 +13,35 @@ class TestProductCreation(BaseProductCreationTest):
         from tests.unit.products.base_product_creation_test import mock_factory
         return mock_factory.product
     
-    def test_create_product_successfully(self, service, mock_repositories, valid_product_request, test_ids):
+    def test_repo_create_product_successfully(self, mock_repositories, valid_product_request, test_ids):
+        """Testa a criação de um produto com sucesso pelo repositorio."""
+        # Arrange
+        from tests.unit.products.base_product_creation_test import mock_factory
+        mock_repositories['artisan_repo'].get_artisan_by_id.return_value = (
+            mock_factory.artisan.create(
+                artisan_id=test_ids['artisan_id']
+            )
+        )
+        mock_repositories['category_repo'].get_category_by_id.return_value = (
+            mock_factory.category.create(
+                category_id=test_ids['category_id']
+            )
+        )
+        artisan_id, data = valid_product_request
+        data = {"artisan_id": artisan_id, **data}
+        result = mock_repositories['product_repo'].create.return_value = (
+            mock_factory.product.create(
+                product_id=test_ids['product_id'],
+                **data
+            )
+        )
+        
+        # Assert
+        assert result is not None
+        assert result.product_id == test_ids['product_id']
+        assert result.name == valid_product_request[1]['name']
+    
+    def test_service_create_product_successfully(self, service, mock_repositories, valid_product_request, test_ids):
         """Testa a criação de um produto com sucesso pelo serviço."""
         # Arrange
         from tests.unit.products.base_product_creation_test import mock_factory
@@ -78,7 +106,7 @@ class TestProductCreation(BaseProductCreationTest):
     def test_create_product_with_nonexistent_artisan(self, service, mock_repositories, valid_product_request):
         """Testa a criação de um produto para um artesão que não existe."""
         # Arrange
-        mock_repositories['artisan_repo'].get_category_by_id.return_value = None
+        mock_repositories['category_repo'].get_category_by_id.return_value = None
         artisan_id, product_data = valid_product_request
         
         # Act & Assert
