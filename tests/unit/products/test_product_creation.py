@@ -66,7 +66,7 @@ class TestProductCreation(BaseProductCreationTest):
         )
         # Mock get_artisan_product_by_name to simulate no existing product with the same name
         mock_repositories['product_repo'].get_artisan_product_by_name.return_value = None
-        request = RegisterProductRequest(**data, category_id=test_ids['category_id'])
+        request = RegisterProductRequest(**data)
         # Act
         result = service.create_artisan_product(artisan_id, request)
         
@@ -95,23 +95,20 @@ class TestProductCreation(BaseProductCreationTest):
         # Arrange
         artisan_id, invalid_request = valid_product_request
         invalid_request['name'] = ""
-        
-        # Act & Assert
+        request = RegisterProductRequest(**invalid_request)
         with pytest.raises(ValueError):
-            service.create_artisan_product(artisan_id, invalid_request)
+            service.create_artisan_product(artisan_id, request)
     
     def test_create_product_with_invalid_category(self, service, mock_repositories, valid_product_request):
         """Testa a criação de um produto com categoria inválida."""
         # Arrange
         mock_repositories['category_repo'].get_category_by_id.return_value = None
         
-        # Desempacotar corretamente a tupla (artisan_id, product_data)
         artisan_id, product_data = valid_product_request
         
-        # Act & Assert
+        request = RegisterProductRequest(**product_data)
         with pytest.raises(ValueError):
-            # Passando os dois argumentos separadamente como esperado
-            service.create_artisan_product(artisan_id, product_data)
+            service.create_artisan_product(artisan_id, request)
             
     def test_create_product_with_nonexistent_artisan(self, service, mock_repositories, valid_product_request):
         """Testa a criação de um produto para um artesão que não existe."""
@@ -119,7 +116,6 @@ class TestProductCreation(BaseProductCreationTest):
         mock_repositories['category_repo'].get_category_by_id.return_value = None
         artisan_id, product_data = valid_product_request
         
-        # Act & Assert
+        request = RegisterProductRequest(**product_data)
         with pytest.raises(ValueError):
-            # Passando os dois argumentos separadamente como esperado
-            service.create_artisan_product(artisan_id, product_data)
+            service.create_artisan_product(artisan_id, request)
