@@ -20,7 +20,9 @@ class ProductRepository(IProductRepository):
             description=product_entity.description,
             price=product_entity.price,
             stock=product_entity.stock,
-            artisan_id=product_entity.artisan_id
+            artisan_id=product_entity.artisan_id,
+            status=product_entity.status,
+            image_url=product_entity.image_url,
         )
         
         print("Product DB Model: ", product_db_model)
