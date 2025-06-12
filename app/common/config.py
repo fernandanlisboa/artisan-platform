@@ -1,8 +1,4 @@
 import os
-from dotenv import load_dotenv
-
-load_dotenv(override=True)
-
 class Config:
     """Configuração base, com valores padrão."""
     # Chave secreta para segurança da sessão e outros recursos do Flask
@@ -28,7 +24,9 @@ class TestingConfig(Config):
     """Configuração para o ambiente de testes (usado pelo CI/CD)."""
     TESTING = True
     # Lê a URL do banco de dados que o GitHub Actions cria e coloca no .env
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = os.getenv('TEST_DATABASE_URL')
+    print("teste env")
+    print(SQLALCHEMY_DATABASE_URI)
     # Pode desativar a verificação de DB no startup durante os testes para agilizar
     CHECK_DB_CONNECTION_ON_STARTUP = 'False' 
 
@@ -44,4 +42,5 @@ config_by_name = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
     'production': ProductionConfig,
+    'default': DevelopmentConfig  
 }

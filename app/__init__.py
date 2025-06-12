@@ -5,11 +5,17 @@ from app.extensions import db, api
 from app.common.config import config_by_name # <--- Importa o dicionário de configurações
 
 def create_app(config_name=None):
+    
+    app = Flask(__name__)
+    
+    print(f"Chamando create_app com config_name={config_name}")
+    print(f"FLASK_ENV={os.getenv('FLASK_ENV')}")
+    
     # Use o parâmetro se fornecido, senão use a variável de ambiente
     if config_name is None:
         config_name = os.getenv('FLASK_ENV', 'development')
     
-    app = Flask(__name__)
+    print(f"Usando configuração: {config_name}")
     
     # 1. CARREGA TODA A CONFIGURAÇÃO A PARTIR DO OBJETO CORRETO
     app.config.from_object(config_by_name[config_name])
