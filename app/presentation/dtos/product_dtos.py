@@ -33,4 +33,5 @@ class RegisterProductRequest(BaseModel):
     description: str = Field(..., description="Description of the product")
     price: float = Field(..., description="Price of the product")
     stock: Optional[int] = Field(..., description="Stock quantity of the product")
-    category: CategoryDTO = Field(..., description="Category of the product")
+    category_id: str = Field(..., description="Category of the product")
+    image_url: Optional[str] = Field(None, description="Image URL of the product")
