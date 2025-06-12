@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 from faker import Faker
 
@@ -12,7 +12,7 @@ class MockUserEntity:
         self.password = password or fake.password()
         self.status = status
         self.address_id = address_id
-        self.registration_date = registration_date or datetime.now()
+        self.registration_date = registration_date or datetime.now(timezone.utc)
 
 class MockArtisanEntity:
     def __init__(self, artisan_id=None, store_name=None, phone=None, bio=None, status='active'):
@@ -109,3 +109,26 @@ class MockFactory:
             values.update(override_values)
             
         return MockArtisanEntity(**values)
+
+def address_entity_to_dict(address_entity):
+    return {
+        "street": address_entity.street,
+        "number": address_entity.number,
+        "complement": address_entity.complement,
+        "neighborhood": address_entity.neighborhood,
+        "city": address_entity.city,
+        "state": address_entity.state,
+        "zip_code": address_entity.zip_code,
+        "country": address_entity.country
+    }
+
+# Exemplo de uso:
+# mock_address = MockFactory().create_address()
+# address_dict = address_entity_to_dict(mock_address)
+# request = RegisterBuyerRequest(
+#     email="test@example.com", 
+#     password="SecurePwd123!", 
+#     full_name="Teste da Silva",
+#     phone="71999998888",
+#     address=address_dict
+# )

@@ -6,11 +6,13 @@ from app.application.services.user_registration_service import UserRegistrationS
 from app.domain.repositories.user_repository_interface import IUserRepository
 from app.domain.repositories.artisan_repository_interface import IArtisanRepository
 from app.domain.repositories.address_repository_interface import IAddressRepository
+from app.domain.repositories.buyer_repository_interface import IBuyerRepository
 
 from tests.unit.mock_data import MockFactory, fake
-from app.presentation.dtos.user_dtos import RegisterArtisanRequest, RegisterAddressRequest
+from tests.unit.base_user_registration_test import BaseUserRegistrationTest
+from app.presentation.dtos.user_dtos import RegisterAddressRequest, RegisterArtisanRequest
 
-class TestArtisanRegistration:
+class TestArtisanRegistration(BaseUserRegistrationTest):
     
     @pytest.fixture
     def mock_repositories(self):
@@ -18,7 +20,8 @@ class TestArtisanRegistration:
         return {
             'user_repo': Mock(spec=IUserRepository),
             'artisan_repo': Mock(spec=IArtisanRepository),
-            'address_repo': Mock(spec=IAddressRepository)
+            'address_repo': Mock(spec=IAddressRepository),
+            'buyer_repo': Mock(spec=IBuyerRepository)  
         }
     
     @pytest.fixture
@@ -27,7 +30,8 @@ class TestArtisanRegistration:
         return UserRegistrationService(
             user_repository=mock_repositories['user_repo'],
             artisan_repository=mock_repositories['artisan_repo'],
-            address_repository=mock_repositories['address_repo']
+            address_repository=mock_repositories['address_repo'],
+            buyer_repository=mock_repositories['buyer_repo']  
         )
     
     @pytest.fixture
@@ -70,15 +74,19 @@ class TestArtisanRegistration:
         
         return phone
 
+    def _registration_method(self, service, request):
+        """Define o método de registro específico para artesãos."""
+        return service.register_artisan(request)
+    
     @pytest.fixture
     def valid_artisan_request(self, valid_address_request):
-        """Cria um objeto de requisição de artesão válido com senha forte."""
+        """Cria um objeto de requisição de artesão válido."""
         return RegisterArtisanRequest(
             email=fake.email(),
             password=f"Valid{fake.random_int(10, 99)}Password!{fake.random_letter().upper()}",
-            store_name=fake.company(),
-            phone=self.__generate_valid_phone(),  
-            bio=fake.paragraph(nb_sentences=1),
+            store_name=f"Ateliê {fake.company()}",
+            phone=self._generate_valid_phone(),
+            bio=fake.paragraph(),
             address=valid_address_request
         )
     

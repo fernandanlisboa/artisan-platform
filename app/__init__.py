@@ -4,16 +4,22 @@ import os
 from app.extensions import db, api
 from app.common.config import config_by_name # <--- Importa o dicionário de configurações
 
-def create_app():
-    # Determina qual ambiente usar. Padrão é 'development' se não for especificado.
-    # O CI/CD irá definir FLASK_ENV=testing no arquivo .env.
-    config_name = os.getenv('FLASK_ENV', 'development')
-
+def create_app(config_name=None):
+    
     app = Flask(__name__)
+    
+    print(f"Chamando create_app com config_name={config_name}")
+    print(f"FLASK_ENV={os.getenv('FLASK_ENV')}")
+    
+    # Use o parâmetro se fornecido, senão use a variável de ambiente
+    if config_name is None:
+        config_name = os.getenv('FLASK_ENV', 'development')
+    
+    print(f"Usando configuração: {config_name}")
     
     # 1. CARREGA TODA A CONFIGURAÇÃO A PARTIR DO OBJETO CORRETO
     app.config.from_object(config_by_name[config_name])
-
+    print(f"*** URL DO BANCO: {app.config['SQLALCHEMY_DATABASE_URI']} ***")
     # 2. INICIALIZA AS EXTENSÕES COM O APP JÁ CONFIGURADO
     db.init_app(app)
     api.init_app(app)
@@ -26,7 +32,6 @@ def create_app():
             print("INFO: Verificação de conexão com DB ativada.")
             pass # Mantenha sua lógica aqui
 
-    # 4. REGISTRA OS NAMESPACES DA API
     from app.presentation.controllers.auth_controller import auth_ns 
     api.add_namespace(auth_ns) 
 

@@ -14,7 +14,7 @@ Converter a User entity para um UserResponse DTO.
 Retornar uma resposta HTTP 201 Created com o corpo JSON contendo os dados do UserResponse.
 Capturar quaisquer erros inesperados (Exception) e retornar 500 Internal Server Error.
 """
-
+#TODO separar em dois controladores, um para artesão e outro para comprador
 # app/presentation/controllers/auth_controller.py
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
@@ -27,11 +27,11 @@ from flask_restx import Namespace, Resource, fields # Importa Namespace, Resourc
 from app.application.services.user_registration_service import UserRegistrationService
 from app.infrastructure.persistence.user_repository import UserRepository
 from app.infrastructure.persistence.artisan_repository import ArtisanRepository
+from app.infrastructure.persistence.buyer_repository import BuyerRepository # Placeholder, se você tiver um repositório de comprador
 from app.infrastructure.persistence.address_repository import AddressRepository
 
 # Import DTOs for request and response formatting
-from app.presentation.dtos.user_dtos import RegisterArtisanRequest, ArtisanRegistrationResponse
-
+from app.presentation.dtos.user_dtos import RegisterArtisanRequest, ArtisanRegistrationResponse, RegisterBuyerRequest, BuyerRegistrationResponse
 
 # --- CRIAÇÃO DO NAMESPACE (Ele agrupa rotas e documentação) ---
 auth_ns = Namespace('auth', description='Authentication related operations') 
@@ -167,11 +167,13 @@ artisan_registration_response_model = auth_ns.model('ArtisanRegistrationResponse
 user_repository_instance = UserRepository() 
 artisan_repository_instance = ArtisanRepository() 
 address_repository_instance = AddressRepository()
+buyer_repository_instance = BuyerRepository()
 
 user_registration_service_instance = UserRegistrationService(
     user_repository=user_repository_instance,
     artisan_repository=artisan_repository_instance,
-    address_repository=address_repository_instance
+    address_repository=address_repository_instance,
+    buyer_repository=buyer_repository_instance 
 )
 # -
 # --- CONTROLADOR COMO UM RECURSO FLASK-RESTX ---
@@ -208,4 +210,97 @@ class ArtisanRegistrationResource(Resource): # HERDA DE flask_restx.Resource
         
         except Exception as e: # Captura outros erros inesperados
             print(f"Internal server error during artisan registration: {e}") 
+            auth_ns.abort(500, "Internal server error")
+
+
+
+# --- DEFINIÇÃO DO MODELO DE REQUISIÇÃO DE COMPRADOR PARA FLASK-RESTX ---
+buyer_registration_request_model = auth_ns.model('RegisterBuyerRequest', {
+    'email': fields.String(required=True, description='User email', example='buyer@example.com', pattern=r'^\S+@\S+\.\S+$'),
+    'password': fields.String(required=True, description='User password', min_length=8),
+    'full_name': fields.String(required=True, description='Buyer\'s full name', max_length=255, example='John Doe'),
+    'phone': fields.String(description='Buyer\'s phone number', required=False, example='5571999998888'),
+    
+    # Campo de Endereço Aninhado (reusa o mesmo modelo de endereço)
+    'address': fields.Nested(address_request_model, description='Primary address details for the buyer', required=False),
+})
+
+# Modelo de resposta para registro de comprador
+buyer_registration_response_model = auth_ns.model('BuyerRegistrationResponseOutput', {
+    'user_id': fields.String(
+        required=True,
+        description='Unique ID of the user (also the buyer ID)',
+        example="b1b2c3d4-e5f6-7890-1234-567890abcdef"
+    ),
+    'email': fields.String(
+        required=True,
+        description='Login email of the buyer',
+        example="buyer@example.com"
+    ),
+    'full_name': fields.String(
+        required=True,
+        description='Buyer\'s full name',
+        example="John Doe"
+    ),
+    'phone': fields.String(
+        required=False,
+        description='Buyer\'s contact phone',
+        example="71999998888"
+    ),
+    'registration_date': fields.DateTime(
+        required=True,
+        description='Date and time when the user was registered',
+        dt_format='iso8601'
+    ),
+    'status': fields.String(
+        required=True,
+        description='Current status of the user account',
+        example="active"
+    ),
+    'role': fields.String(
+        required=True,
+        description='User role in the system',
+        example='buyer',
+        default='buyer'
+    ),
+    'address': fields.Nested(
+        address_response_model,
+        required=False,
+        description='Primary address associated with the buyer',
+        skip_none=True
+    )
+})
+#FIX: time out
+@auth_ns.route('/register/buyer')
+class BuyerRegistrationResource(Resource):
+    """Resource for buyer registration."""
+    
+    # Injeta o serviço de aplicação no recurso
+    user_registration_service = user_registration_service_instance
+
+    @auth_ns.expect(buyer_registration_request_model, validate=True)
+    @auth_ns.marshal_with(buyer_registration_response_model, code=201)
+    @auth_ns.doc(description='Register a new buyer user.')
+    def post(self):
+        """Registers a new buyer."""
+        try:
+            # Converte os dados da requisição para o DTO
+            request_data = RegisterBuyerRequest(**auth_ns.payload)
+            
+            # Chama o serviço de aplicação
+            created_user = self.user_registration_service.register_buyer(
+                request_data=request_data
+            )
+            
+            # Retorna a resposta formatada
+            return created_user, 201
+        
+        except ValidationError as e:
+            auth_ns.abort(400, "Invalid input data", details=e.errors())
+        
+        except ValueError as e:
+            auth_ns.abort(400, str(e))
+        
+        except Exception as e:
+            print(f"Internal server error during buyer registration: {e}")
             auth_ns.abort(500, "Internal server error")

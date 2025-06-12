@@ -1,9 +1,11 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr  # Importar EmailStr
 from typing import Optional
 from datetime import datetime
 from app.domain.models.artisan import ArtisanEntity
+from app.domain.models.buyer import BuyerEntity 
 from app.domain.models.user import UserEntity
 from app.domain.models.address import AddressEntity
+from pydantic import ConfigDict
 """
 Propósito: Definir os formatos de dados para a comunicação com o exterior.
 Lógica: Conterá a classe RegisterArtisanRequest (um Pydantic BaseModel) que 
@@ -17,7 +19,7 @@ Terá também a classe UserResponse para formatar a resposta de sucesso.
 # --- DTO para a Requisição de Endereço (Permanece o mesmo) ---
 class RegisterAddressRequest(BaseModel):
     """DTO for address registration or update requests."""
-    street: str = Field(..., example="Rua das Flores", max_length=255)
+    street: str = Field(..., max_length=255, json_schema_extra={"example": "Rua das Flores"})
     number: Optional[str] = Field(None, example="123", max_length=20) 
     complement: Optional[str] = Field(None, example="Apto 101", max_length=100)
     neighborhood: str = Field(..., example="Centro", max_length=100)
@@ -50,9 +52,8 @@ class AddressResponse(BaseModel):
     zip_code: str = Field(..., example="40000-000")
     country: str = Field("Brasil", example="Brasil")
 
-    class Config:
-        orm_mode = True # Útil se você for popular diretamente de um AddressDBModel
-                        # ou se sua AddressEntity tiver atributos compatíveis
+    model_config = ConfigDict(from_attributes=True)
+
 # DTO para a Resposta do Registro de Artesão
 class ArtisanRegistrationResponse(BaseModel):
     user_id: str = Field(..., description="ID único do usuário/artesão.", example="u1b2c3d4-e5f6-7890-1234-567890abcdef")
@@ -66,9 +67,8 @@ class ArtisanRegistrationResponse(BaseModel):
     address: Optional[AddressResponse] = Field(None, description="Endereço principal do artesão.")
 
     class Config:
-        # orm_mode = True pode ser útil se você estiver construindo este DTO
-        # a partir de um objeto que combina UserDBModel e ArtisanDBModel.
-        # Se estiver usando entidades de domínio puras, um método factory é mais explícito.
+        # from_attributes = True pode ser útil se você estiver construindo este DTO
+        # diretamente de modelos ORM
         pass
 
     # Método para criar o DTO a partir de suas entidades de domínio
@@ -104,5 +104,58 @@ class ArtisanRegistrationResponse(BaseModel):
             phone=artisan_entity.phone,
             bio=artisan_entity.bio,
             status=user_entity.status,
+            address=address_response_data,
+            registration_date=user_entity.registration_date
+        )
+ 
+class RegisterBuyerRequest(BaseModel):
+    """DTO para a requisição de registro de um comprador, com endereço aninhado."""
+    email: EmailStr = Field(...)  # EmailStr faz validação automática
+    password: str = Field(..., min_length=8, max_length=64)
+    full_name: str = Field(..., example="João da Silva", max_length=255) # Alterado para full_name
+    phone: Optional[str] = Field(None, example="71988887777", max_length=20)
+
+    address: RegisterAddressRequest = Field(..., description="Detalhes do endereço principal do comprador.")
+
+
+# --- DTO para a Resposta do Registro de Comprador ---
+class BuyerRegistrationResponse(BaseModel):
+    user_id: str = Field(..., description="ID único do usuário/comprador.", example="u1b2c3d4-e5f6-7890-1234-567890abcdef")
+    email: str = Field(..., description="Email do comprador.", example="comprador@email.com")
+    full_name: str = Field(..., description="Nome completo do comprador.", example="Maria de Souza") # Alterado para full_name
+    phone: Optional[str] = Field(None, description="Telefone de contato do comprador.", example="71999991111")
+    status: str = Field(..., description="Status atual do usuário.", example="active")
+    registration_date: Optional[datetime] = Field(..., description="Data de registro do usuário.", example="2023-05-30T14:30:00")
+    address: Optional[AddressResponse] = Field(None, description="Endereço principal do comprador.")
+
+    class Config:
+        pass
+
+    @classmethod
+    def from_domain_entities(cls, buyer_entity: BuyerEntity, user_entity: UserEntity, address_entity: Optional[AddressEntity]):
+        """
+        Cria o DTO a partir das entidades de domínio.
+        """
+        address_response_data = None
+        if address_entity and address_entity.address_id:
+            address_response_data = AddressResponse(
+                address_id=address_entity.address_id,
+                street=address_entity.street,
+                number=address_entity.number,
+                complement=address_entity.complement,
+                neighborhood=address_entity.neighborhood,
+                city=address_entity.city,
+                state=address_entity.state,
+                zip_code=address_entity.zip_code,
+                country=address_entity.country
+            )
+
+        return cls(
+            user_id=user_entity.user_id, # O ID do comprador é o mesmo ID do usuário
+            email=user_entity.email,
+            full_name=buyer_entity.full_name, # Alterado para full_name
+            phone=buyer_entity.phone,
+            status=user_entity.status,
+            registration_date=user_entity.registration_date if user_entity.registration_date else None, # Adicionado o mapeamento da data de registro
             address=address_response_data
         )
