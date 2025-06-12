@@ -5,6 +5,7 @@ from app.domain.models.artisan import ArtisanEntity
 from app.domain.models.buyer import BuyerEntity 
 from app.domain.models.user import UserEntity
 from app.domain.models.address import AddressEntity
+from pydantic import ConfigDict
 """
 Propósito: Definir os formatos de dados para a comunicação com o exterior.
 Lógica: Conterá a classe RegisterArtisanRequest (um Pydantic BaseModel) que 
@@ -18,7 +19,7 @@ Terá também a classe UserResponse para formatar a resposta de sucesso.
 # --- DTO para a Requisição de Endereço (Permanece o mesmo) ---
 class RegisterAddressRequest(BaseModel):
     """DTO for address registration or update requests."""
-    street: str = Field(..., example="Rua das Flores", max_length=255)
+    street: str = Field(..., max_length=255, json_schema_extra={"example": "Rua das Flores"})
     number: Optional[str] = Field(None, example="123", max_length=20) 
     complement: Optional[str] = Field(None, example="Apto 101", max_length=100)
     neighborhood: str = Field(..., example="Centro", max_length=100)
@@ -51,9 +52,8 @@ class AddressResponse(BaseModel):
     zip_code: str = Field(..., example="40000-000")
     country: str = Field("Brasil", example="Brasil")
 
-    class Config:
-        from_attributes = True # Útil se você for popular diretamente de um AddressDBModel
-                        # ou se sua AddressEntity tiver atributos compatíveis
+    model_config = ConfigDict(from_attributes=True)
+
 # DTO para a Resposta do Registro de Artesão
 class ArtisanRegistrationResponse(BaseModel):
     user_id: str = Field(..., description="ID único do usuário/artesão.", example="u1b2c3d4-e5f6-7890-1234-567890abcdef")
