@@ -1,6 +1,8 @@
 
 from app.domain.repositories.category_repository_interface import ICategoryRepository
 
+from app.domain.models.category import CategoryEntity
+from typing import Optional
 
 class CategoryRepository(ICategoryRepository):
     """
@@ -10,17 +12,13 @@ class CategoryRepository(ICategoryRepository):
     def __init__(self):
         super().__init__()
 
-    def create_category(self, category_entity):
+    def get_category_by_id(self, category_id: str) -> Optional[CategoryEntity]:
         """
-        Save a category to the repository.
+        Retrieve a category by its ID.
         
-        :param category_entity: CategoryEntity instance to be saved.
-        :return: The saved CategoryEntity instance.
+        :param category_id: The ID of the category to retrieve.
+        :return: An instance of CategoryEntity if found, otherwise None.
         """
-        # Here you would implement the logic to save the category_entity
-        # to your database or any other storage system.
-        # For example:
-        # db_session.add(category_entity)
-        # db_session.commit()
-        
-        return category_entity  # Return the saved entity
+        # This method should interact with the database to fetch the category
+        # For now, we return None as a placeholder
+        return None

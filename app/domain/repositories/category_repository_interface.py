@@ -10,12 +10,6 @@ class ICategoryRepository(ABC):
     """
     
     @abstractmethod
-    def create_category(self, category_entity: CategoryEntity) -> CategoryEntity:
-        """
-        Save a category to the repository.
-        
-        :param category_entity: CategoryEntity instance to be saved.
-        :return: The saved CategoryEntity instance.
-        """
+    def get_category_by_id(self, category_id: str) -> Optional[CategoryEntity]:
+        """Gets a Category entity by its ID."""
         pass
-    
