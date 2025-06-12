@@ -7,9 +7,12 @@ from app.domain.repositories.user_repository_interface import IUserRepository
 from app.domain.repositories.buyer_repository_interface import IBuyerRepository
 from app.domain.repositories.address_repository_interface import IAddressRepository
 from app.domain.repositories.artisan_repository_interface import IArtisanRepository
-from tests.unit.mock_data import MockFactory, fake
+from tests.unit.mocks.factories import MockFactory
 
 from app.presentation.dtos.user_dtos import RegisterAddressRequest
+
+# Instanciando a factory no nível do módulo
+mock_factory = MockFactory()
 
 class BaseUserRegistrationTest:
     """Classe base para testes de registro de usuários (artesão/comprador)"""
@@ -45,15 +48,17 @@ class BaseUserRegistrationTest:
     @pytest.fixture
     def valid_address_request(self):
         """Cria um objeto de requisição de endereço válido."""
+        # Usa a factory de address para criar dados consistentes
+        address = mock_factory.address.create()
         return RegisterAddressRequest(
-            street=fake.street_name(),
-            number=fake.building_number(),
-            complement=fake.secondary_address(),
-            neighborhood=fake.city_suffix(),
-            city=fake.city(),
-            state=fake.state_abbr(),
-            zip_code=fake.postcode(),
-            country=fake.country()
+            street=address.street,
+            number=address.number,
+            complement=address.complement,
+            neighborhood=address.neighborhood,
+            city=address.city,
+            state=address.state,
+            zip_code=address.zip_code,
+            country=address.country
         )
 
     def _generate_valid_phone(self, max_length=20):
@@ -110,3 +115,13 @@ class BaseUserRegistrationTest:
             error = str(excinfo.value).lower()
             assert "password" in error
             assert case["expected"].lower() in error
+    
+    @pytest.fixture
+    def mock_entities(self, test_ids):
+        """Usa a MockFactory para criar entidades de teste."""
+        return {
+            'user': mock_factory.user.create(user_id=test_ids['user_id']),
+            'address': mock_factory.address.create(address_id=test_ids['address_id']),
+            'buyer': mock_factory.buyer.create(),
+            'artisan': mock_factory.artisan.create(),
+        }
