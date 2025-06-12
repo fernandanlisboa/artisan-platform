@@ -16,6 +16,14 @@ class CategoryEntity:
         self.category_id = category_id
         self.name = name
         self.description = description
+    
+    @classmethod
+    def from_db_model(cls, db_model):
+        return cls(
+            category_id=db_model.category_id,
+            name=db_model.name,
+            description=db_model.description if db_model.description else None
+        )
         
     def __repr__(self) -> str:
         return (f"CategoryEntity(category_id='{self.category_id}', "
