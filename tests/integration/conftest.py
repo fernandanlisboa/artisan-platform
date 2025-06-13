@@ -105,3 +105,24 @@ def mock_artisan_data():
         "email": f"artisan_{uuid.uuid4().hex[:8]}@example.com",
         "password": "ValidPassword123!"
     }
+
+@pytest.fixture
+def mock_product_data():
+    """Gera dados de produto aleatórios usando o MockFactory."""
+    product = mock_factory.product.create()
+    return {
+        'name': f"Test Product {uuid.uuid4().hex[:8]}",  # Nome único
+        'description': product.description,
+        'price': product.price,
+        'stock': product.stock,
+        'category_id': str(uuid.uuid4())
+    }
+
+@pytest.fixture
+def mock_category_data():
+    """Gera dados de categoria aleatórios usando o MockFactory."""
+    category = mock_factory.category.create()
+    return {
+        'name': category.name,
+        'description': category.description
+    }
