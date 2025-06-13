@@ -7,7 +7,7 @@ class ArtisanRepository(IArtisanRepository):
     def __init__(self):
         super().__init__()
 
-    def save(self, artisan_entity):
+    def create(self, artisan_entity):
         """
         Saves an Artisan entity to the database.
         Converts the pure domain entity to a database model before saving.

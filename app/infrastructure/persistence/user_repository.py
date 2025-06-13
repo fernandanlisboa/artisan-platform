@@ -8,7 +8,7 @@ class UserRepository(IUserRepository):
     def __init__(self):
         super().__init__()
 
-    def save(self, user_entity) -> UserEntity:
+    def create(self, user_entity) -> UserEntity:
         """Saves a User entity to the database by converting it to UserDBModel."""
         # CONVERSION: Pure Domain Entity -> ORM Model
         user_db_model = UserDBModel(

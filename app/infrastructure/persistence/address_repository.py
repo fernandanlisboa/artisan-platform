@@ -10,7 +10,7 @@ class AddressRepository(IAddressRepository):
     Concrete implementation of AddressRepository using Flask-SQLAlchemy.
     Handles persistence operations for AddressDBModel.
     """
-    def save(self, address_entity: Address) -> Address: # Aceita Address (entidade pura)
+    def create(self, address_entity: Address) -> Address: # Aceita Address (entidade pura)
         """Saves an Address entity to the database by converting it to AddressDBModel."""
         # CONVERSÃO: Entidade de Domínio Pura -> Modelo ORM
         address_db_model = AddressDBModel(
@@ -40,17 +40,7 @@ class AddressRepository(IAddressRepository):
         """Gets an Address by ID and converts it to a pure domain entity."""
         address_db_model = AddressDBModel.query.get(address_id)
         if address_db_model:
-            return Address(
-                address_id=address_db_model.address_id,
-                street=address_db_model.street,
-                number=address_db_model.number,
-                complement=address_db_model.complement,
-                neighborhood=address_db_model.neighborhood,
-                city=address_db_model.city,
-                state=address_db_model.state,
-                country=address_db_model.country,
-                zip_code=address_db_model.zip_code
-            )
+            return Address.from_db_model(address_db_model)
         return None
     
     def get_by_attributes(self, address_entity: Address) -> Optional[Address]:
@@ -59,15 +49,5 @@ class AddressRepository(IAddressRepository):
         query = AddressDBModel.query.filter_by(**filter_criteria)
         address_db_model = query.first()
         if address_db_model:
-            return Address(
-                address_id=address_db_model.address_id,
-                street=address_db_model.street,
-                number=address_db_model.number,
-                complement=address_db_model.complement,
-                neighborhood=address_db_model.neighborhood,
-                city=address_db_model.city,
-                state=address_db_model.state,
-                country=address_db_model.country,
-                zip_code=address_db_model.zip_code
-            )
+            return Address.from_db_model(address_db_model)
         return None
