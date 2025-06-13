@@ -20,9 +20,6 @@ os.environ['FLASK_ENV'] = 'testing'
 import json
 import uuid
 from app import create_app, db
-from app.infrastructure.persistence.models_db.user_db_model import UserDBModel
-from app.infrastructure.persistence.models_db.buyer_db_model import BuyerDBModel
-from app.infrastructure.persistence.models_db.address_db_model import AddressDBModel
 
 
 @pytest.fixture(scope="function", autouse=True)

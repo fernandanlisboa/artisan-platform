@@ -35,8 +35,8 @@ class MockAddressEntity(BaseMockEntity):
                 neighborhood=None, city=None, state=None, zip_code=None, country=None):
         self.address_id = address_id or str(uuid.uuid4())
         self.street = street or fake.street_name()
-        self.number = number or fake.building_number()
-        self.complement = complement or fake.secondary_address()
+        self.number = number or str(fake.building_number())
+        self.complement = complement or fake.bairro()
         self.neighborhood = neighborhood or fake.city_suffix()
         self.city = city or fake.city()
         self.state = state or fake.state_abbr()
