@@ -5,7 +5,7 @@ from app.application.services.artisan_product_service import ArtisanProductServi
 from app.domain.repositories.product_repository_interface import IProductRepository
 from app.domain.repositories.category_repository_interface import ICategoryRepository
 from app.domain.repositories.artisan_repository_interface import IArtisanRepository
-from tests.unit.mocks.factories import MockFactory
+from tests.mocks.factories import MockFactory
 
 # Instanciando a factory no nível do módulo
 mock_factory = MockFactory()

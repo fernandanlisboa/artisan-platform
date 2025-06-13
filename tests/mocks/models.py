@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from tests.unit.mocks.base import BaseMockEntity, FakerInstance
+from tests.mocks.base import BaseMockEntity, FakerInstance
 import random
 
 fake = FakerInstance.get_instance()

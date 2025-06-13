@@ -1,5 +1,5 @@
-from tests.unit.mocks.base import EntityBuilder
-from tests.unit.mocks.models import MockUserEntity, MockAddressEntity
+from tests.mocks.base import EntityBuilder
+from tests.mocks.models import MockUserEntity, MockAddressEntity
 
 class UserBuilder(EntityBuilder):
     def reset(self):

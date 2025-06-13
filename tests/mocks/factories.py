@@ -1,5 +1,5 @@
-from tests.unit.mocks.base import AbstractEntityFactory, FakerInstance
-from tests.unit.mocks.models import MockUserEntity, MockAddressEntity, MockArtisanEntity, MockBuyerEntity, MockProductEntity, MockCategoryEntity
+from tests.mocks.base import AbstractEntityFactory, FakerInstance
+from tests.mocks.models import MockUserEntity, MockAddressEntity, MockArtisanEntity, MockBuyerEntity, MockProductEntity, MockCategoryEntity
 
 fake = FakerInstance.get_instance()
 
