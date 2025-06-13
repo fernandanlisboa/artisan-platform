@@ -5,7 +5,7 @@ from app.domain.models.artisan import ArtisanEntity
 class IArtisanRepository(ABC):
     
     @abstractmethod
-    def save(self, artisan_entity: ArtisanEntity) -> ArtisanEntity: # Aceita e retorna a entidade pura
+    def create(self, artisan_entity: ArtisanEntity) -> ArtisanEntity: # Aceita e retorna a entidade pura
         pass
     
     @abstractmethod

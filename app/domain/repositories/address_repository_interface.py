@@ -9,7 +9,7 @@ class IAddressRepository(ABC):
     Defines the contract for interacting with the 'addresses' table.
     """
     @abstractmethod
-    def save(self, address: AddressEntity) -> AddressEntity:
+    def create(self, address: AddressEntity) -> AddressEntity:
         """Saves an Address entity to the persistent storage."""
         pass
 

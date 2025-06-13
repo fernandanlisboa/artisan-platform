@@ -52,7 +52,40 @@ class AddressResponse(BaseModel):
     zip_code: str = Field(..., example="40000-000")
     country: str = Field("Brasil", example="Brasil")
 
-    model_config = ConfigDict(from_attributes=True)
+    # model_config = ConfigDict(from_attributes=True)
+    
+    @classmethod
+    def from_domain_entity(cls, address_entity):
+        """Cria um AddressResponse a partir de uma entidade AddressEntity ou objeto mock."""
+        if not address_entity or not getattr(address_entity, 'address_id', None):
+            return None
+            
+        try:
+            return cls(
+                # address_id=str(getattr(address_entity, 'address_id', '')),
+                # street=str(getattr(address_entity, 'street', '')),
+                # number=str(getattr(address_entity, 'number', '')) if getattr(address_entity, 'number', None) else None,
+                # complement=str(getattr(address_entity, 'complement', '')) if getattr(address_entity, 'complement', None) else None,
+                # neighborhood=str(getattr(address_entity, 'neighborhood', '')),
+                # city=str(getattr(address_entity, 'city', '')),
+                # state=str(getattr(address_entity, 'state', '')),
+                # zip_code=str(getattr(address_entity, 'zip_code', '')),
+                # country=str(getattr(address_entity, 'country', 'Brasil'))
+                address_id=address_entity.address_id,
+                street=address_entity.street,
+                number=address_entity.number,
+                complement=address_entity.complement,
+                neighborhood=address_entity.neighborhood,
+                city=address_entity.city,
+                state=address_entity.state,
+                zip_code=address_entity.zip_code,
+                country=address_entity.country
+            )
+        except Exception as e:
+            # Em ambiente de teste, podemos retornar um objeto de fallback
+            print(f"Error creating AddressResponse: {e}")
+            return None
+    
 
 # DTO para a Resposta do Registro de Artesão
 class ArtisanRegistrationResponse(BaseModel):
@@ -61,11 +94,9 @@ class ArtisanRegistrationResponse(BaseModel):
     store_name: str = Field(..., description="Nome da loja/ateliê do artesão.", example="Ateliê Mãos de Ouro")
     phone: Optional[str] = Field(None, description="Telefone de contato do artesão.", example="71999998888")
     bio: Optional[str] = Field(None, description="Biografia ou descrição do artesão.", example="Crio peças únicas em cerâmica.")
-
     status: str = Field(..., description="Status atual do usuário.", example="active")
- 
     address: Optional[AddressResponse] = Field(None, description="Endereço principal do artesão.")
-
+    registration_date: Optional[datetime] = Field(..., description="Data de registro do usuário.", example="2023-05-30T14:30:00")
     class Config:
         # from_attributes = True pode ser útil se você estiver construindo este DTO
         # diretamente de modelos ORM
@@ -77,26 +108,13 @@ class ArtisanRegistrationResponse(BaseModel):
     # Vamos supor que você tenha uma ArtisanEntity que contém ou tem acesso a UserEntity e AddressEntity.
 
     @classmethod
-    def from_domain_entities(cls, artisan_entity: ArtisanEntity, user_entity: UserEntity, address_entity: Optional[AddressEntity]):
+    def from_domain_entities(cls, artisan_entity: ArtisanEntity, user_entity: UserEntity, address_entity: AddressEntity):
         """
         Cria o DTO a partir das entidades de domínio.
         'ArtisanEntity', 'UserEntity', 'AddressEntity' são placeholders para suas classes de entidade.
         """
-        
-        address_response_data = None
-        if address_entity and address_entity.address_id:
-            address_response_data = AddressResponse(
-                address_id=address_entity.address_id,
-                street=address_entity.street,
-                number=address_entity.number,
-                complement=address_entity.complement,
-                neighborhood=address_entity.neighborhood,
-                city=address_entity.city,
-                state=address_entity.state,
-                zip_code=address_entity.zip_code,
-                country=address_entity.country
-            )
-            
+
+        address_response_data = AddressResponse.from_domain_entity(address_entity)
         return cls(
             user_id=user_entity.user_id, # que também é o artisan_entity.artisan_id
             email=user_entity.email,
@@ -136,20 +154,7 @@ class BuyerRegistrationResponse(BaseModel):
         """
         Cria o DTO a partir das entidades de domínio.
         """
-        address_response_data = None
-        if address_entity and address_entity.address_id:
-            address_response_data = AddressResponse(
-                address_id=address_entity.address_id,
-                street=address_entity.street,
-                number=address_entity.number,
-                complement=address_entity.complement,
-                neighborhood=address_entity.neighborhood,
-                city=address_entity.city,
-                state=address_entity.state,
-                zip_code=address_entity.zip_code,
-                country=address_entity.country
-            )
-
+        address_response_data = AddressResponse.from_domain_entity(address_entity)
         return cls(
             user_id=user_entity.user_id, # O ID do comprador é o mesmo ID do usuário
             email=user_entity.email,

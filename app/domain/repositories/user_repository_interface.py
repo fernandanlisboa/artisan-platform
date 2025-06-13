@@ -9,7 +9,7 @@ class IUserRepository(ABC):
     Defines the contract for interacting with the 'users' table.
     """
     @abstractmethod
-    def save(self, user_entity: UserEntity) -> UserEntity:
+    def create(self, user_entity: UserEntity) -> UserEntity:
         """
         Save a user to the repository.
         
