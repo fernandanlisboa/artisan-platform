@@ -3,6 +3,7 @@ import os
 import sys
 import pytest
 from dotenv import load_dotenv, find_dotenv
+from tests.mocks.factories import MockFactory
 
 # Adiciona o diretório raiz do projeto ao PYTHONPATH
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
@@ -20,6 +21,9 @@ os.environ['FLASK_ENV'] = 'testing'
 import json
 import uuid
 from app import create_app, db
+
+# Crie uma instância do MockFactory para ser usada em todos os testes de integração
+mock_factory = MockFactory()
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -61,3 +65,43 @@ def session(app):
         
         # Rollback após o teste
         db.session.rollback()
+
+# Adicione estas fixtures auxiliares:
+
+@pytest.fixture
+def mock_address_data():
+    """Gera dados de endereço aleatórios usando o MockFactory."""
+    address = mock_factory.address.create()
+    return {
+        "street": address.street,
+        "number": address.number,
+        "complement": address.complement,
+        "neighborhood": address.neighborhood,
+        "city": address.city,
+        "state": address.state,
+        "zip_code": address.zip_code,
+        "country": address.country
+    }
+
+@pytest.fixture
+def mock_buyer_data():
+    """Gera dados de comprador aleatórios usando o MockFactory."""
+    buyer = mock_factory.buyer.create()
+    return {
+        "full_name": buyer.full_name,
+        "phone": buyer.phone,
+        "email": f"test_{uuid.uuid4().hex[:8]}@example.com",  # Email único
+        "password": "ValidPassword123!"  # Senha padrão para testes
+    }
+
+@pytest.fixture
+def mock_artisan_data():
+    """Gera dados de artesão aleatórios usando o MockFactory."""
+    artisan = mock_factory.artisan.create()
+    return {
+        "store_name": artisan.store_name,
+        "phone": artisan.phone,
+        "bio": artisan.bio,
+        "email": f"artisan_{uuid.uuid4().hex[:8]}@example.com",
+        "password": "ValidPassword123!"
+    }
