@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import Mock
 import uuid
-from tests.unit.mocks.factories import MockFactory
+from tests.mocks.factories import MockFactory
 
 # Recursos compartilhados por todos os testes de usuário
 mock_factory = MockFactory()

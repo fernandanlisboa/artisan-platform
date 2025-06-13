@@ -7,7 +7,7 @@ from app.domain.repositories.buyer_repository_interface import IBuyerRepository
 from app.domain.repositories.address_repository_interface import IAddressRepository
 from app.domain.repositories.artisan_repository_interface import IArtisanRepository
 from app.presentation.dtos.user_dtos import RegisterAddressRequest
-from tests.unit.mocks.factories import MockFactory
+from tests.mocks.factories import MockFactory
 
 mock_factory = MockFactory()
 class BaseRegistrationTest(BaseUserTest):
