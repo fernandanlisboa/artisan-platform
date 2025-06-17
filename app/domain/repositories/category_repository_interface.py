@@ -10,6 +10,11 @@ class ICategoryRepository(ABC):
     """
     
     @abstractmethod
-    def get_category_by_id(self, category_id: str) -> Optional[CategoryEntity]:
+    def create(self, category: CategoryEntity) -> CategoryEntity:
+        """Creates a new Category entity."""
+        pass
+    
+    @abstractmethod
+    def get_by_id(self, category_id: str) -> Optional[CategoryEntity]:
         """Gets a Category entity by its ID."""
         pass

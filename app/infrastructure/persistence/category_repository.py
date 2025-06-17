@@ -13,6 +13,21 @@ class CategoryRepository(ICategoryRepository):
     def __init__(self):
         super().__init__()
 
+    def create(self, category: CategoryEntity) -> CategoryEntity:
+        """
+        Creates a new Category in the database and converts it to a pure domain entity.
+        """
+        category_db_model = CategoryDBModel.from_entity(category)
+        try:
+            db.session.add(category_db_model)
+            db.session.commit()
+        except Exception as e:
+            print(f"Error saving category: {e}")
+            db.session.rollback()
+            raise
+
+        return CategoryEntity.from_db_model(category_db_model)
+    
     def get_by_id(self, category_id: str) -> Optional[CategoryEntity]:
         """
         Gets a Category by ID and converts it to a pure domain entity.
