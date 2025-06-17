@@ -38,6 +38,7 @@ class ArtisanProductResource(Resource):
         'image_url': fields.String(required=False, description='Image URL of the product')
     }))
     def post(self, artisan_id):
+        #TODO: add authentication and authorization of artisan user!
         """
         Create a new product for an artisan.
         """
