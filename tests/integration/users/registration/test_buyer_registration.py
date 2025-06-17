@@ -1,7 +1,6 @@
 import pytest
 import json
 import uuid
-from app import db
 from tests.integration.conftest import mock_factory
 import uuid
 
