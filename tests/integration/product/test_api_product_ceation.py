@@ -96,3 +96,15 @@ class TestAPIProductCreation:
         print("API Response Body:", response.json)
         # assert response.status_code == 400
         assert response.json['message'] == 'Category does not exist'
+        
+    def test_create_same_artisan_product(self, session, client, created_artisan, created_category, valid_product_data):
+        valid_product_data['category_id'] = created_category.category_id
+        # Create the first product
+        response = client.post(f'/api/artisan/{created_artisan.artisan_id}/product', data=json.dumps(valid_product_data), content_type='application/json')
+        assert response.status_code == 201
+
+        # Try to create a second product with the same name
+        response = client.post(f'/api/artisan/{created_artisan.artisan_id}/product', data=json.dumps(valid_product_data), content_type='application/json')
+        print("API Response Body:", response.json)
+        # assert response.status_code == 400
+        assert 'Product with this name already exists for this artisan' in response.json['message']
