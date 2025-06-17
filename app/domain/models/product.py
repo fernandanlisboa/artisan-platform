@@ -65,7 +65,3 @@ class ProductEntity:
 
     def __str__(self) -> str:
         return f"{self.name} ({self.product_id}) - {self.status}"
-
-    def __getattribute__(self, name: str) -> Any:
-        return object.__getattribute__(self, name)
-        
