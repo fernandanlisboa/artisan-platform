@@ -39,6 +39,6 @@ class ArtisanRepository(IArtisanRepository):
         artisan_db_model = ArtisanDBModel.query.get(artisan_id)
         
         if artisan_db_model:
-            return artisan_db_model.to_domain_entity()
+            return ArtisanEntity.from_db_model(artisan_db_model)
 
         return None
