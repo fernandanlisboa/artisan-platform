@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_serializer
 from typing import Optional
 from datetime import datetime
 
@@ -18,6 +18,25 @@ class CategoryDTO(BaseModel):
     name: str = Field(..., description="Name of the category")
     description: Optional[str] = Field(None, description="Description of the category")
 
+    @classmethod
+    def from_domain_entity(cls, category_entity):
+        """
+        Create a CategoryDTO instance from a domain entity.
+        
+        :param category_entity: The category entity.
+        :return: An instance of CategoryDTO.
+        """
+        try:
+            return cls(
+                category_id=category_entity.category_id,
+                name=category_entity.name,
+                description=category_entity.description
+            )
+            
+        except Exception as e:
+            print(f"Error creating CategoryDTO: {e}")
+            return None
+            
 class RegisterProductRequest(BaseModel):
     """
     Data Transfer Object for Product.
@@ -45,8 +64,7 @@ class ResponseRegisterProduct(BaseModel):
     model_config = ConfigDict(
         extra='forbid',  # Forbid extra fields
         validate_assignment=True,  # Validate on assignment
-        protected_namespaces=(),  # No protected namespaces
-        arbitrary_types_allowed=True  # Allow arbitrary types
+        protected_namespaces=()  # No protected namespaces
     )
 
     product_id: str = Field(..., description="ID of the registered product")
@@ -79,9 +97,13 @@ class ResponseRegisterProduct(BaseModel):
             registration_date=product.registration_date,
             status=product.status,
             artisan_id=product.artisan_id,
-            category=CategoryDTO(
-                category_id=category.category_id,
-                name=category.name,
-                description=category.description
-            )
+            category=CategoryDTO.from_domain_entity(category)
         )
+        
+    @field_serializer('registration_date')
+    def serialize_registration_date(self, dt: datetime, _info):
+        """
+        Esta função será chamada especificamente para o campo 'registration_date'
+        durante a serialização, garantindo que ele seja convertido para uma string.
+        """
+        return dt.isoformat()
