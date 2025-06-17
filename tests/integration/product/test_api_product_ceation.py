@@ -1,8 +1,58 @@
 import json
 import pytest
 import uuid
+import copy
 from tests.integration.conftest import mock_factory
 from app.infrastructure.persistence.models_db.product_db_model import ProductDBModel
+
+def generate_invalid_variations(valid_payload: dict, required_fields: list):
+    """
+    Gera dinamicamente variações inválidas de um payload.
+
+    :param valid_payload: Um dicionário com um exemplo de dados válidos.
+    :param required_fields: Uma lista com os nomes dos campos que são obrigatórios.
+    """
+    print("\n--- Iniciando geração dinâmica de payloads inválidos ---")
+
+    # Caso Global 1: Campo extra não permitido
+    payload_with_extra = valid_payload.copy()
+    payload_with_extra['extra_field'] = 'este campo nao deveria existir'
+    yield ("extra_field", payload_with_extra)
+
+    # Itera sobre cada campo do payload válido para criar cenários de falha
+    for field, original_value in valid_payload.items():
+        
+        # Caso Específico por Campo 1: Campo obrigatório faltando
+        if field in required_fields:
+            payload = valid_payload.copy()
+            del payload[field]
+            yield (f"missing_{field}", payload)
+
+        # Caso Específico por Campo 2: Valor com tipo incorreto
+        # Se for string, tente enviar um número
+        if isinstance(original_value, str):
+            payload = valid_payload.copy()
+            payload[field] = 12345
+            yield (f"invalid_type_for_{field}_(int)", payload)
+        
+        # Se for número (int ou float), tente enviar uma string
+        if isinstance(original_value, (int, float)):
+            payload = valid_payload.copy()
+            payload[field] = "não é um número"
+            yield (f"invalid_type_for_{field}_(str)", payload)
+        
+        # Caso Específico por Campo 3: Valor logicamente inválido
+        # Se for número, tente enviar um valor negativo
+        if isinstance(original_value, (int, float)) and original_value > 0:
+            payload = valid_payload.copy()
+            payload[field] = -abs(original_value)
+            yield (f"negative_value_for_{field}", payload)
+            
+        # Se for string obrigatória, tente enviar uma string vazia
+        if isinstance(original_value, str) and field in required_fields:
+            payload = valid_payload.copy()
+            payload[field] = ""
+            yield (f"empty_value_for_{field}", payload)
 
 class TestAPIProductCreation:
     @pytest.fixture
@@ -108,3 +158,33 @@ class TestAPIProductCreation:
         print("API Response Body:", response.json)
         # assert response.status_code == 400
         assert 'Product with this name already exists for this artisan' in response.json['message']
+    
+    BASE_PAYLOAD_STRUCTURE = { "name": "Nome", "description": "Desc", "price": 1.0, "stock": 1, "category_id": "id" }
+    REQUIRED_FIELDS = ["name", "price", "category_id"]
+
+    @pytest.mark.parametrize(
+        "test_id, invalid_payload",
+        generate_invalid_variations(BASE_PAYLOAD_STRUCTURE, REQUIRED_FIELDS)
+    )
+    def test_create_product_with_invalid_data(
+        self, client, created_artisan, created_category, test_id, invalid_payload
+    ):
+        """
+        Usa um payload válido das fixtures para preencher um template de dados inválidos.
+        """
+        # Garante que, se a categoria não foi o campo corrompido, ela seja válida.
+        if 'category_id' not in test_id:
+            if 'category_id' in invalid_payload:
+                invalid_payload['category_id'] = created_category.category_id
+
+        # ACT
+        response = client.post(
+            f'/api/artisan/{created_artisan.artisan_id}/product',
+            data=json.dumps(invalid_payload),
+            content_type='application/json'
+        )
+        print(invalid_payload)
+        print(response.json)
+        # ASSERT
+        assert response.status_code == 400
+        print(f"OK - Teste '{test_id}' falhou como esperado com status 400. Erro: {response.json}")
