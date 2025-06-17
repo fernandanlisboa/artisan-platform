@@ -60,4 +60,4 @@ def upgrade() -> None:
     
 def downgrade() -> None:
     """Downgrade schema."""
-    op.execute("DELETE FROM categories WHERE nome IN ('Cerâmica', 'Têxtil', 'Bijuteria', 'Madeira');")
+    op.execute("DELETE FROM categories WHERE name IN ('Cerâmica', 'Têxtil', 'Bijuteria', 'Madeira');")
