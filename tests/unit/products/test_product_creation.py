@@ -23,7 +23,7 @@ class TestProductCreation(BaseProductCreationTest):
                 artisan_id=test_ids['artisan_id']
             )
         )
-        mock_repositories['category_repo'].get_category_by_id.return_value = (
+        mock_repositories['category_repo'].get_by_id.return_value = (
             mock_factory.category.create(
                 category_id=test_ids['category_id']
             )
@@ -51,7 +51,7 @@ class TestProductCreation(BaseProductCreationTest):
                 artisan_id=test_ids['artisan_id']
             )
         )
-        mock_repositories['category_repo'].get_category_by_id.return_value = (
+        mock_repositories['category_repo'].get_by_id.return_value = (
             mock_factory.category.create(
                 category_id=test_ids['category_id']
             )
@@ -77,7 +77,7 @@ class TestProductCreation(BaseProductCreationTest):
         
         # Verify repository calls
         mock_repositories['artisan_repo'].get_artisan_by_id.assert_called_once_with(valid_product_request[0])
-        mock_repositories['category_repo'].get_category_by_id.assert_called_once_with(test_ids['category_id'])
+        mock_repositories['category_repo'].get_by_id.assert_called_once_with(test_ids['category_id'])
         mock_repositories['product_repo'].create.assert_called_once()
     
     def test_create_product_with_invalid_price(self, service, mock_repositories, valid_product_request):
@@ -102,7 +102,7 @@ class TestProductCreation(BaseProductCreationTest):
     def test_create_product_with_invalid_category(self, service, mock_repositories, valid_product_request):
         """Testa a criação de um produto com categoria inválida."""
         # Arrange
-        mock_repositories['category_repo'].get_category_by_id.return_value = None
+        mock_repositories['category_repo'].get_by_id.return_value = None
         
         artisan_id, product_data = valid_product_request
         
@@ -113,7 +113,7 @@ class TestProductCreation(BaseProductCreationTest):
     def test_create_product_with_nonexistent_artisan(self, service, mock_repositories, valid_product_request):
         """Testa a criação de um produto para um artesão que não existe."""
         # Arrange
-        mock_repositories['category_repo'].get_category_by_id.return_value = None
+        mock_repositories['category_repo'].get_by_id.return_value = None
         artisan_id, product_data = valid_product_request
         
         request = RegisterProductRequest(**product_data)

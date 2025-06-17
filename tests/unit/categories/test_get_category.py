@@ -29,11 +29,11 @@ class TestGetCategory(BaseGetCategoryTest):
     def test_get_by_id_successfully(self, mock_repositories, test_ids):
         """Testa a obtenção de uma categoria pelo nome com sucesso."""
         # Arrange
-        mock_repositories['category_repo'].get_category_by_id.return_value = {
+        mock_repositories['category_repo'].get_by_id.return_value = {
             'category_id': test_ids['category_id'],
             'name': 'Test Category'
         }
-        result = mock_repositories['category_repo'].get_category_by_id('Test Category')
+        result = mock_repositories['category_repo'].get_by_id('Test Category')
 
         # Assert    
         assert result is not None
@@ -43,11 +43,11 @@ class TestGetCategory(BaseGetCategoryTest):
     def test_get_by_id_not_found(self, mock_repositories):
         """Testa a obtenção de uma categoria que não existe."""
         # Arrange
-        mock_repositories['category_repo'].get_category_by_id.return_value = None
+        mock_repositories['category_repo'].get_by_id.return_value = None
         
         # Act
-        result = mock_repositories['category_repo'].get_category_by_id('Nonexistent Category')
+        result = mock_repositories['category_repo'].get_by_id('Nonexistent Category')
         
         # Assert
         assert result is None
-        mock_repositories['category_repo'].get_category_by_id.assert_called_once_with('Nonexistent Category')
+        mock_repositories['category_repo'].get_by_id.assert_called_once_with('Nonexistent Category')
