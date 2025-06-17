@@ -65,7 +65,6 @@ def session(app):
         # Rollback após o teste
         db.session.rollback()
 
-
 @pytest.fixture
 def created_address(session, valid_address_data): # Uma fixture pode usar outra!
     from app.infrastructure.persistence.models_db.address_db_model import AddressDBModel
@@ -104,61 +103,3 @@ def created_category(session, valid_category_data):
     valid_category_data['category_id'] = category.category_id
     return category
 
-@pytest.fixture
-def mock_address_data():
-    """Gera dados de endereço aleatórios usando o MockFactory."""
-    address = mock_factory.address.create()
-    return {
-        "street": address.street,
-        "number": address.number,
-        "complement": address.complement,
-        "neighborhood": address.neighborhood,
-        "city": address.city,
-        "state": address.state,
-        "zip_code": address.zip_code,
-        "country": address.country
-    }
-
-@pytest.fixture
-def mock_buyer_data():
-    """Gera dados de comprador aleatórios usando o MockFactory."""
-    buyer = mock_factory.buyer.create()
-    return {
-        "full_name": buyer.full_name,
-        "phone": buyer.phone,
-        "email": f"test_{uuid.uuid4().hex[:8]}@example.com",  # Email único
-        "password": "ValidPassword123!"  # Senha padrão para testes
-    }
-
-@pytest.fixture
-def mock_artisan_data():
-    """Gera dados de artesão aleatórios usando o MockFactory."""
-    artisan = mock_factory.artisan.create()
-    return {
-        "store_name": artisan.store_name,
-        "phone": artisan.phone,
-        "bio": artisan.bio,
-        "email": f"artisan_{uuid.uuid4().hex[:8]}@example.com",
-        "password": "ValidPassword123!"
-    }
-
-@pytest.fixture
-def mock_product_data():
-    """Gera dados de produto aleatórios usando o MockFactory."""
-    product = mock_factory.product.create()
-    return {
-        'name': f"Test Product {uuid.uuid4().hex[:8]}",  # Nome único
-        'description': product.description,
-        'price': product.price,
-        'stock': product.stock,
-        'category_id': str(uuid.uuid4())
-    }
-
-@pytest.fixture
-def mock_category_data():
-    """Gera dados de categoria aleatórios usando o MockFactory."""
-    category = mock_factory.category.create()
-    return {
-        'name': category.name,
-        'description': category.description
-    }
