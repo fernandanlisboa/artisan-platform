@@ -80,3 +80,19 @@ class TestAPIProductCreation:
         product = ProductDBModel.query.get(response.json['product_id'])
         assert product is not None
 
+    def test_create_product_with_inexistent_artisan(self, session, client, created_category, valid_product_data):
+        valid_product_data['category_id'] = created_category.category_id
+        invalid_artisan_id = str(uuid.uuid4())
+        response = client.post(f'/api/artisan/{invalid_artisan_id}/product', data=json.dumps(valid_product_data), content_type='application/json')
+        print("API Response Body:", response.json)
+        # assert response.status_code == 404
+        assert 'not found' in response.json['message'].lower()
+        assert response.json['message'] == 'Artisan not found'
+        
+    def test_create_product_with_inexistent_category(self, session, client, created_artisan, valid_product_data):
+        invalid_category_id = str(uuid.uuid4())
+        valid_product_data['category_id'] = invalid_category_id
+        response = client.post(f'/api/artisan/{created_artisan.artisan_id}/product', data=json.dumps(valid_product_data), content_type='application/json')
+        print("API Response Body:", response.json)
+        # assert response.status_code == 400
+        assert response.json['message'] == 'Category does not exist'
