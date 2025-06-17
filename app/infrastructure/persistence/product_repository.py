@@ -23,6 +23,7 @@ class ProductRepository(IProductRepository):
             artisan_id=product_entity.artisan_id,
             status=product_entity.status,
             image_url=product_entity.image_url,
+            category_id=product_entity.category_id,
         )
         
         print("Product DB Model: ", product_db_model)
@@ -32,7 +33,7 @@ class ProductRepository(IProductRepository):
         except Exception as e:
             print(f"Error saving product: {e}")
             db.session.rollback()
-        
+        product_entity =  ProductEntity.from_db_model(product_db_model)
         print("Product Entity after save: ", product_entity)
         return product_entity  
     
