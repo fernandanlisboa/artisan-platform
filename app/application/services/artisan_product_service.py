@@ -1,3 +1,4 @@
+from asyncio.log import logger
 from app.domain.repositories.artisan_repository_interface import IArtisanRepository
 from app.domain.repositories.product_repository_interface import IProductRepository
 from app.domain.repositories.category_repository_interface import ICategoryRepository
@@ -39,12 +40,12 @@ class ArtisanProductService:
             raise ValueError("Product with this name already exists for this artisan")
         try:
             saved_product = self.product_repository.create(new_product)
-            print("Product saved successfully:")
-            print(saved_product)
-            print(saved_product.product_id)
-            print(saved_product.category_id)
+            logger.info("Product saved successfully:")
+            logger.info(saved_product)
+            logger.info(f"Product ID: {saved_product.product_id}")
+            logger.info(f"Category ID: {saved_product.category_id}")
         except Exception as e:
-            print(f"Error saving product: {e}")
+            logger.error(f"Error saving product: {e}")
             raise
         
         return ResponseRegisterProduct.from_domain_entities(saved_product, category)
