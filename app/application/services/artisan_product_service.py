@@ -11,6 +11,7 @@ class ArtisanProductService:
 
     def create_artisan_product(self, artisan_id: str, product_data: RegisterProductRequest) -> ResponseRegisterProduct:
         artisan = self._artisan_repository.get_artisan_by_id(artisan_id)
+        #TODO: exceptionError
         if not artisan:
             raise ValueError("Artisan not found")
 
@@ -30,7 +31,7 @@ class ArtisanProductService:
             raise ValueError("Category does not exist")
         print(f"category found: {category}")
         # Validate price and name
-        if not product_data.name or product_data.price is None or product_data.price < 0:
+        if not product_data.name or product_data.price is None or product_data.price < 0 or product_data.stock < 0:
             raise ValueError("Invalid product data")
 
         #check pre-existence of product 
