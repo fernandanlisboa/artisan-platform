@@ -71,7 +71,7 @@ class ResponseRegisterProduct(BaseModel):
     name: str = Field(..., description="Name of the registered product")
     description: str = Field(..., description="Description of the registered product")
     price: float = Field(..., description="Price of the registered product")
-    stock: int = Field(..., description="Stock quantity of the registered product")
+    stock: Optional[int] = Field(None, description="Stock quantity of the registered product")
     artisan_id: str = Field(..., description="ID of the artisan who registered the product")
     image_url: Optional[str] = Field(None, description="Image URL of the registered product")
     registration_date: datetime = Field(..., description="Registration date of the product")
