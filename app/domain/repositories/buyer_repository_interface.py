@@ -5,5 +5,5 @@ from app.domain.models.buyer import BuyerEntity
 class IBuyerRepository(ABC):
     
     @abstractmethod
-    def save(self, buyer_entity: BuyerEntity) -> BuyerEntity: # Aceita e retorna a entidade pura
+    def create(self, buyer_entity: BuyerEntity) -> BuyerEntity: # Aceita e retorna a entidade pura
         pass

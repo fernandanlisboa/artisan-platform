@@ -7,7 +7,7 @@ class BuyerRepository(IBuyerRepository):
     def __init__(self):
         super().__init__()
 
-    def save(self, buyer_entity):
+    def create(self, buyer_entity):
         """
         Saves an Buyer entity to the database.
         Converts the pure domain entity to a database model before saving.

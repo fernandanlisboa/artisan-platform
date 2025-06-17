@@ -1,7 +1,8 @@
 import pytest
 import json
 import uuid
-from app import db
+from tests.integration.conftest import mock_factory
+import uuid
 
 class TestBuyerRegistrationIntegration:
     """
@@ -12,23 +13,29 @@ class TestBuyerRegistrationIntegration:
 
     @pytest.fixture
     def valid_buyer_data(self):
-        """Dados válidos para registro de comprador."""
-        # Sempre use email único para evitar conflitos entre testes
-        unique_email = f"buyer.{uuid.uuid4().hex[:8]}@example.com"
+        """Dados válidos para registro de comprador usando o mock_factory."""
+        # Cria objetos mock
+        mock_buyer = mock_factory.buyer.create()
+        mock_address = mock_factory.address.create()
+        
+        # Gera um email único
+        unique_email = f"test_{uuid.uuid4().hex[:8]}@example.com"
+        
+        # Retorna um dicionário para JSON
         return {
             "email": unique_email,
-            "password": "Secure123Password!",
-            "full_name": "Comprador Teste",
-            "phone": "(71) 99876-5432",
+            "password": "ValidPassword123!",
+            "full_name": mock_buyer.full_name,
+            "phone": mock_buyer.phone,
             "address": {
-                "street": "Avenida dos Compradores",
-                "number": "456",
-                "complement": "Casa 2",
-                "neighborhood": "Centro",
-                "city": "Salvador",
-                "state": "BA",
-                "zip_code": "41000-000",
-                "country": "Brasil"
+                "street": mock_address.street,
+                "number": mock_address.number,
+                "complement": mock_address.complement,
+                "neighborhood": mock_address.neighborhood,
+                "city": mock_address.city,
+                "state": mock_address.state,
+                "zip_code": mock_address.zip_code,
+                "country": mock_address.country
             }
         }
 

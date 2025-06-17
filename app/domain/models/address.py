@@ -11,6 +11,25 @@ class AddressEntity:
         self.neighborhood = neighborhood
         self.complement = complement
 
+    @classmethod
+    def from_db_model(cls, db_model):
+        """
+        Creates an AddressEntity instance from a database model.
+        
+        :param db_model: The database model instance containing address data.
+        :return: An instance of AddressEntity.
+        """
+        return cls(
+            address_id=db_model.address_id,
+            street=db_model.street,
+            city=db_model.city,
+            state=db_model.state,
+            zip_code=db_model.zip_code,
+            country=db_model.country,
+            number=db_model.number,
+            neighborhood=db_model.neighborhood,
+            complement=db_model.complement if db_model.complement else None
+        )
     def __str__(self):
         return f"{self.street}, {self.city}, {self.state} {self.zip_code} {self.country}, {self.number}, {self.neighborhood}, {self.complement}"
     

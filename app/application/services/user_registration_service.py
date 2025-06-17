@@ -133,7 +133,7 @@ class UserRegistrationService:
         if saved_address:
             print("Address already exists, using existing address.")
         else:
-            saved_address = self.address_repository.save(address_entity)
+            saved_address = self.address_repository.create(address_entity)
             print("New address saved: ", saved_address)
         
         #check email already exists
@@ -152,7 +152,7 @@ class UserRegistrationService:
             address_id=saved_address.address_id,  # Inicialmente None, será atualizado após salvar o endereço
         )
         print("User Entity: ", user_entity)
-        saved_user_entity = self.user_repository.save(user_entity)
+        saved_user_entity = self.user_repository.create(user_entity)
         #check phone
         artisan_entity = ArtisanEntity(
             artisan_id=saved_user_entity.user_id,
@@ -161,7 +161,7 @@ class UserRegistrationService:
             phone=request_data.phone
         )
         print("Artisan Entity: ", artisan_entity)
-        saved_artisan_entity = self.artisan_repository.save(artisan_entity)
+        saved_artisan_entity = self.artisan_repository.create(artisan_entity)
         return ArtisanRegistrationResponse.from_domain_entities(saved_artisan_entity, saved_user_entity, saved_address)
 
     def register_buyer(self, request_data: RegisterBuyerRequest) -> BuyerRegistrationResponse:
@@ -186,7 +186,7 @@ class UserRegistrationService:
         if saved_address:
             print("Address already exists, using existing address.")
         else:
-            saved_address = self.address_repository.save(address_entity)
+            saved_address = self.address_repository.create(address_entity)
             print("New address saved: ", saved_address)
         
         if not self.__is_valid_email_format(request_data.email):
@@ -209,7 +209,7 @@ class UserRegistrationService:
             address_id=saved_address.address_id,  # Inicialmente None, será atualizado após salvar o endereço
         )
         print("User Entity: ", user_entity)
-        saved_user_entity = self.user_repository.save(user_entity)
+        saved_user_entity = self.user_repository.create(user_entity)
         buyer_entity = BuyerEntity(
             buyer_id=saved_user_entity.user_id, # O ID do comprador é o mesmo ID do usuário
             full_name=request_data.full_name,
@@ -217,7 +217,7 @@ class UserRegistrationService:
         )
 
         print("Buyer Entity: ", buyer_entity)
-        saved_buyer_entity = self.buyer_repository.save(buyer_entity)
+        saved_buyer_entity = self.buyer_repository.create(buyer_entity)
 
         return BuyerRegistrationResponse.from_domain_entities(saved_buyer_entity, saved_user_entity, saved_address)
         

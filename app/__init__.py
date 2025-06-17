@@ -32,8 +32,10 @@ def create_app(config_name=None):
             print("INFO: Verificação de conexão com DB ativada.")
             pass # Mantenha sua lógica aqui
 
-    from app.presentation.controllers.auth_controller import auth_ns 
+    from app.presentation.controllers.auth_controller import auth_ns
+    from app.presentation.controllers.artisan_controller import artisan_ns 
     api.add_namespace(auth_ns) 
+    api.add_namespace(artisan_ns)
 
     # Adicionar middleware de segurança para todas as respostas
     @app.after_request

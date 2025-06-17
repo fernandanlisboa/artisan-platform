@@ -23,3 +23,4 @@ class ArtisanDBModel(db.Model):
         self.status = status
     def __repr__(self):
         return f"<ArtisanDBModel(id='{self.artisan_id}', store='{self.store_name}')>"
+    
