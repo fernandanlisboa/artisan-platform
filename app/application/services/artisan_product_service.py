@@ -1,9 +1,10 @@
+from app.domain.repositories.artisan_repository_interface import IArtisanRepository
 from app.domain.repositories.product_repository_interface import IProductRepository
 from app.domain.repositories.category_repository_interface import ICategoryRepository
 from app.domain.models.product import ProductEntity
 from app.presentation.dtos.product_dtos import RegisterProductRequest, ResponseRegisterProduct
 class ArtisanProductService:
-    def __init__(self, product_repository: IProductRepository, category_repository: ICategoryRepository, artisan_repository):
+    def __init__(self, product_repository: IProductRepository, category_repository: ICategoryRepository, artisan_repository: IArtisanRepository):
         self._artisan_repository = artisan_repository
         self.product_repository = product_repository
         self.category_repository = category_repository      
@@ -24,20 +25,23 @@ class ArtisanProductService:
         )
         
         #check category_id 
-        category = self.category_repository.get_category_by_id(new_product.category_id)
+        category = self.category_repository.get_by_id(new_product.category_id)
         if not category:
             raise ValueError("Category does not exist")
-        
+        print(f"category found: {category}")
         # Validate price and name
         if not product_data.name or product_data.price is None or product_data.price < 0:
             raise ValueError("Invalid product data")
 
-        
         #check pre-existence of product 
         if self.product_repository.get_artisan_product_by_name(artisan_id, new_product.name):
             raise ValueError("Product with this name already exists for this artisan")
         try:
             saved_product = self.product_repository.create(new_product)
+            print("Product saved successfully:")
+            print(saved_product)
+            print(saved_product.product_id)
+            print(saved_product.category_id)
         except Exception as e:
             print(f"Error saving product: {e}")
             raise
