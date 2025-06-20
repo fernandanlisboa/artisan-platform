@@ -5,9 +5,6 @@ from tests.unit.products.base_product_test import mock_factory, BaseProductTest
 
 class TestGetProductsByArtisan(BaseProductTest):
     """Testes para a obtenção de produtos usando o ProductService."""
-    def create_base_products(self, mock_repositories, mock_factory, test_ids):
-        """Cria produtos básicos para os testes."""  
-        pass
     
     def test_get_all_products_successfully(self, service, mock_repositories, mock_entities, test_ids):
         """Testa a obtenção de todos os produtos."""
