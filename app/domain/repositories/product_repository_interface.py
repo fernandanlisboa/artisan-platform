@@ -38,3 +38,13 @@ class IProductRepository(ABC):
         :return: ProductEntity instance if found, None otherwise.
         """
         pass
+    
+    @abstractmethod
+    def find_by_artisan_id(self, artisan_id: str) -> list[ProductEntity]:
+        """
+        Find all products associated with a specific artisan ID.
+        
+        :param artisan_id: ID of the artisan whose products are to be retrieved.
+        :return: List of ProductEntity instances associated with the artisan.
+        """
+        pass
