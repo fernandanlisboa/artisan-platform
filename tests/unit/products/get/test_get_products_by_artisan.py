@@ -74,3 +74,21 @@ class TestGetProductsByArtisan(BaseProductTest):
         mock_repositories['artisan_repo'].get_artisan_by_id.assert_called_once_with(artisan_id_to_find)
         # O repositório de categoria NÃO deve ser chamado se não há produtos
         mock_repositories['category_repo'].get_by_id.assert_not_called()
+        
+    def test_get_all_products_by_artisan_invalid_artisan(self, service, mock_repositories, test_ids):
+        """Testa a obtenção de produtos quando o ID do artesão é inválido."""
+        # ARRANGE
+        invalid_artisan_id = str(uuid.uuid4())
+        
+        # Configure o mock do artisan_repo para retornar None, simulando que o artesão não foi encontrado
+        mock_repositories['artisan_repo'].get_artisan_by_id.return_value = None
+        
+        # ACT & ASSERT
+        with pytest.raises(ValueError, match="Artisan not found"):
+            service.get_all_products_by_artisan(invalid_artisan_id)
+        
+        # Verifica se o método do repositório foi chamado corretamente
+        mock_repositories['artisan_repo'].get_artisan_by_id.assert_called_once_with(invalid_artisan_id)
+        # O repositório de produtos e categorias NÃO deve ser chamado se o artesão não existe
+        mock_repositories['product_repo'].find_by_artisan_id.assert_not_called()
+        mock_repositories['category_repo'].get_by_id.assert_not_called()
