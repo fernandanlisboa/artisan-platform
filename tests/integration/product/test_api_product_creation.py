@@ -5,6 +5,9 @@ import copy
 from tests.integration.conftest import mock_factory
 from app.infrastructure.persistence.models_db.product_db_model import ProductDBModel
 
+#TODO: refatorar para ter uma classe base construindo os objetos necessários para os testes de produtos!
+
+
 def generate_invalid_variations(valid_payload: dict, required_fields: list):
     """
     Gera dinamicamente variações inválidas de um payload.
@@ -122,7 +125,7 @@ class TestAPIProductCreation:
     def test_create_product_successfully(self, app, session, client, created_artisan, created_category, valid_product_data):
         valid_product_data['category_id'] = created_category.category_id
         
-        response = client.post(f'/api/artisan/{created_artisan.artisan_id}/product', data=json.dumps(valid_product_data), content_type='application/json')
+        response = client.post(f'/api/artisan/{created_artisan.artisan_id}/products', data=json.dumps(valid_product_data), content_type='application/json')
         assert response.status_code == 201
         assert 'product_id' in response.json
         assert response.json['name'] == valid_product_data['name']
@@ -133,7 +136,7 @@ class TestAPIProductCreation:
     def test_create_product_with_inexistent_artisan(self, session, client, created_category, valid_product_data):
         valid_product_data['category_id'] = created_category.category_id
         invalid_artisan_id = str(uuid.uuid4())
-        response = client.post(f'/api/artisan/{invalid_artisan_id}/product', data=json.dumps(valid_product_data), content_type='application/json')
+        response = client.post(f'/api/artisan/{invalid_artisan_id}/products', data=json.dumps(valid_product_data), content_type='application/json')
         print("API Response Body:", response.json)
         # assert response.status_code == 404
         assert 'not found' in response.json['message'].lower()
@@ -150,11 +153,11 @@ class TestAPIProductCreation:
     def test_create_same_artisan_product(self, session, client, created_artisan, created_category, valid_product_data):
         valid_product_data['category_id'] = created_category.category_id
         # Create the first product
-        response = client.post(f'/api/artisan/{created_artisan.artisan_id}/product', data=json.dumps(valid_product_data), content_type='application/json')
+        response = client.post(f'/api/artisan/{created_artisan.artisan_id}/products', data=json.dumps(valid_product_data), content_type='application/json')
         assert response.status_code == 201
 
         # Try to create a second product with the same name
-        response = client.post(f'/api/artisan/{created_artisan.artisan_id}/product', data=json.dumps(valid_product_data), content_type='application/json')
+        response = client.post(f'/api/artisan/{created_artisan.artisan_id}/products', data=json.dumps(valid_product_data), content_type='application/json')
         print("API Response Body:", response.json)
         # assert response.status_code == 400
         assert 'Product with this name already exists for this artisan' in response.json['message']
@@ -179,7 +182,7 @@ class TestAPIProductCreation:
 
         # ACT
         response = client.post(
-            f'/api/artisan/{created_artisan.artisan_id}/product',
+            f'/api/artisan/{created_artisan.artisan_id}/products',
             data=json.dumps(invalid_payload),
             content_type='application/json'
         )

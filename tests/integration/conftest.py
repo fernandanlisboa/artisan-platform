@@ -103,3 +103,13 @@ def created_category(session, valid_category_data):
     valid_category_data['category_id'] = category.category_id
     return category
 
+@pytest.fixture
+def created_product(session, created_artisan, created_category, valid_product_data):
+    from app.infrastructure.persistence.models_db.product_db_model import ProductDBModel
+    # Garante que o ID da categoria na fixture de produto seja o mesmo da categoria criada
+    valid_product_data['category_id'] = created_category.category_id
+    valid_product_data['artisan_id'] = created_artisan.artisan_id
+    product = ProductDBModel(**valid_product_data)
+    session.add(product)
+    session.commit()
+    return product
