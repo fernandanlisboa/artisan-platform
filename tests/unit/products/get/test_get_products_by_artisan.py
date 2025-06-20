@@ -75,7 +75,7 @@ class TestGetProductsByArtisan(BaseProductTest):
         # O repositório de categoria NÃO deve ser chamado se não há produtos
         mock_repositories['category_repo'].get_by_id.assert_not_called()
         
-    def test_get_all_products_by_artisan_invalid_artisan(self, service, mock_repositories, test_ids):
+    def test_get_all_products_by_artisan_invalid_artisan(self, service, mock_repositories):
         """Testa a obtenção de produtos quando o ID do artesão é inválido."""
         # ARRANGE
         invalid_artisan_id = str(uuid.uuid4())
