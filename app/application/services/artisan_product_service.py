@@ -49,4 +49,46 @@ class ArtisanProductService:
             raise
         
         return ResponseRegisterProduct.from_domain_entities(saved_product, category)
-
+    
+    def __get_categories_by_ids(self, category_ids: set[str]) -> list:
+        """
+        Helper method to fetch categories by their IDs.
+        """
+        categories = []
+        for cat_id in category_ids:
+            try:
+                category = self.category_repository.get_by_id(cat_id)
+            except Exception as e:
+                logger.error(f"Error fetching category {cat_id}: {e}")
+                category = None
+                pass                         
+            categories.append(category)
+        return categories
+    
+    def get_all_products_by_artisan(self, artisan_id: str):
+        try:
+            artisan = self._artisan_repository.get_artisan_by_id(artisan_id)
+            if not artisan:
+                raise ValueError("Artisan not found")
+            products = self.product_repository.find_by_artisan_id(artisan_id)
+        except Exception as e:
+            logger.error(f"Error fetching products for artisan {artisan_id}: {e}")
+            raise
+        
+        if not products:
+            logger.info(f"No products found for artisan {artisan_id}")
+            return []
+        
+        # Fetch categories for the products
+        category_ids = {product.category_id for product in products}
+        categories = self.__get_categories_by_ids(category_ids)
+        
+        # Create a mapping of category_id to category
+        category_map = {category.category_id: category for category in categories}
+        
+        # Map products to their respective categories
+        return [
+            ResponseRegisterProduct.from_domain_entities(product, category_map.get(product.category_id))
+            for product in products
+        ]
+        

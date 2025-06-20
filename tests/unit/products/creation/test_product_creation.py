@@ -1,23 +1,23 @@
 import pytest
-# Importar apenas a classe BaseProductCreationTest
+# Importar apenas a classe BaseProductTest
 from app.presentation.dtos.product_dtos import RegisterProductRequest
-from tests.unit.products.base_product_creation_test import BaseProductCreationTest
+from tests.unit.products.base_product_test import BaseProductTest
 
 # mock_factory já é acessível dentro da classe pois é definido no módulo importado
-class TestProductCreation(BaseProductCreationTest):
+class TestProductCreation(BaseProductTest):
     """Testes para a criação de produtos usando o ProductService."""
 
     @pytest.fixture
     def product_factory(self):
         """Retorna a factory de produtos do mock_factory."""
         # A variável mock_factory já está acessível no escopo do módulo
-        from tests.unit.products.base_product_creation_test import mock_factory
+        from tests.unit.products.base_product_test import mock_factory
         return mock_factory.product
     
     def test_repo_create_product_successfully(self, mock_repositories, valid_product_request, test_ids):
         """Testa a criação de um produto com sucesso pelo repositorio."""
         # Arrange
-        from tests.unit.products.base_product_creation_test import mock_factory
+        from tests.unit.products.base_product_test import mock_factory
         mock_repositories['artisan_repo'].get_artisan_by_id.return_value = (
             mock_factory.artisan.create(
                 artisan_id=test_ids['artisan_id']
@@ -45,7 +45,7 @@ class TestProductCreation(BaseProductCreationTest):
     def test_service_create_product_successfully(self, service, mock_repositories, valid_product_request, test_ids):
         """Testa a criação de um produto com sucesso pelo serviço."""
         # Arrange
-        from tests.unit.products.base_product_creation_test import mock_factory
+        from tests.unit.products.base_product_test import mock_factory
         mock_repositories['artisan_repo'].get_artisan_by_id.return_value = (
             mock_factory.artisan.create(
                 artisan_id=test_ids['artisan_id']

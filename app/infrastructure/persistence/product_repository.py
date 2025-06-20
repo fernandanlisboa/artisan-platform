@@ -59,3 +59,19 @@ class ProductRepository(IProductRepository):
         if product_db_model:
             return ProductEntity.from_db_model(product_db_model)
         return None
+    
+    def find_by_artisan_id(self, artisan_id: str):
+        """
+        Finds all products associated with a specific artisan ID.
+        Converts ORM models to pure domain entities.
+        """
+        try:
+            product_db_models = ProductDBModel.query.filter_by(artisan_id=artisan_id).all()
+        except Exception as e:
+            print(f"Error retrieving products for artisan {artisan_id}: {e}")
+            return []
+        
+        if product_db_models:
+            return [ProductEntity.from_db_model(product) for product in product_db_models]
+        return []
+        

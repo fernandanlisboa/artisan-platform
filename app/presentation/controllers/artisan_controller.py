@@ -21,7 +21,7 @@ artisan_product_service_instance = ArtisanProductService(
 #TODO: adicionar autenticação e autorização
 artisan_ns = Namespace('artisan', description='Artisan management operations')
 
-@artisan_ns.route('/<string:artisan_id>/product')
+@artisan_ns.route('/<string:artisan_id>/products')
 class ArtisanProductResource(Resource):
     """
     Resource for managing artisan products.
@@ -59,4 +59,19 @@ class ArtisanProductResource(Resource):
         
         except Exception as e:
             print(f"Internal server error during buyer registration: {e}")
+            artisan_ns.abort(500, "Internal server error")
+            
+    @artisan_ns.doc('get_artisan_products')
+    def get(self, artisan_id):
+        """
+        Get all products for a specific artisan.
+        """
+        try:
+            products = artisan_product_service_instance.get_all_products_by_artisan(artisan_id)
+                        
+            return [product.model_dump() for product in products], 200  # Return the list of products with HTTP status 200
+        except ValueError as e:
+            artisan_ns.abort(400, str(e))
+        except Exception as e:
+            print(f"Error retrieving artisan products: {e}")
             artisan_ns.abort(500, "Internal server error")
