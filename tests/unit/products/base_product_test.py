@@ -10,7 +10,7 @@ from tests.mocks.factories import MockFactory
 # Instanciando a factory no nível do módulo
 mock_factory = MockFactory()
 
-class BaseProductCreationTest:
+class BaseProductTest:
     """
     Classe base para testes de criação de produtos.
     """
@@ -46,17 +46,17 @@ class BaseProductCreationTest:
     def mock_entities(self, test_ids):
         """Usa a MockFactory para criar entidades de teste."""
         return {
-            'product': mock_factory.product.create(
-                product_id=test_ids['product_id'],
-                artisan_id=test_ids['artisan_id'],
-                category_id=test_ids['category_id']
-            ),
             'artisan': mock_factory.artisan.create(
                 artisan_id=test_ids['artisan_id']
             ),
             'category': mock_factory.category.create(
                 category_id=test_ids['category_id']
-            ) if hasattr(mock_factory, 'category') else None
+            ) if hasattr(mock_factory, 'category') else None,
+            'product': mock_factory.product.create(
+                product_id=test_ids['product_id'],
+                artisan_id=test_ids['artisan_id'],
+                category_id=test_ids['category_id']
+            ),
         }
     
     @pytest.fixture
