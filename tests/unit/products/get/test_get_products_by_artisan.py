@@ -48,3 +48,29 @@ class TestGetProductsByArtisan(BaseProductTest):
         # Verifica se o método find_by_artisan_id do repositório foi chamado corretamente
         mock_repositories['product_repo'].find_by_artisan_id.assert_called_once_with(artisan_id_to_find)
         mock_repositories['category_repo'].get_by_id.assert_called_once_with(category_id_for_product) # Passa o ID real
+
+    def test_get_all_products_by_artisan_no_products(self, service, mock_repositories, test_ids):
+        """Testa a obtenção de produtos quando não há produtos para o artesão."""
+        # ARRANGE
+        artisan_id_to_find = test_ids['artisan_id']
+        
+        # Configure o mock do product_repo para RETORNAR UMA LISTA VAZIA
+        # Isso simula que o repositório não encontrou produtos para o ID do artesão
+        mock_repositories['product_repo'].find_by_artisan_id.return_value = []
+        
+        # Configure o mock do artisan_repo para retornar um artesão (para que a validação de artesão exista não falhe)
+        mock_repositories['artisan_repo'].get_artisan_by_id.return_value = mock_factory.artisan.create(artisan_id=artisan_id_to_find)
+
+        # ACT
+        products = service.get_all_products_by_artisan(artisan_id_to_find)
+        
+        # ASSERT
+        assert products is not None
+        assert isinstance(products, list)
+        assert len(products) == 0 # Esperamos uma lista vazia
+
+        # Verifica se o método do repositório foi chamado corretamente
+        mock_repositories['product_repo'].find_by_artisan_id.assert_called_once_with(artisan_id_to_find)
+        mock_repositories['artisan_repo'].get_artisan_by_id.assert_called_once_with(artisan_id_to_find)
+        # O repositório de categoria NÃO deve ser chamado se não há produtos
+        mock_repositories['category_repo'].get_by_id.assert_not_called()
