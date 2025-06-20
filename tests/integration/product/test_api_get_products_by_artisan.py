@@ -1,8 +1,13 @@
+from collections import Counter
 from decimal import Decimal
 import uuid
 import json
 import pytest
 
+from app.domain.models.category import CategoryEntity
+from app.domain.models.product import ProductEntity
+from app.infrastructure.persistence.category_repository import CategoryRepository
+from app.infrastructure.persistence.product_repository import ProductRepository
 from tests.integration.conftest import mock_factory
 
 class TestAPIGetProductsByArtisan:
@@ -60,6 +65,17 @@ class TestAPIGetProductsByArtisan:
             "name": mock_category.name,
             "description": mock_category.description
         }
+        
+    @pytest.fixture
+    def valid_categories_data(self):
+        mock_categories = mock_factory.category.create_many(2)
+        return [
+            {
+                "category_id": mock_category.category_id,
+                "name": mock_category.name,
+                "description": mock_category.description
+            } for mock_category in mock_categories
+        ]
     
     @pytest.fixture
     def valid_product_data(self, test_ids):
@@ -71,6 +87,22 @@ class TestAPIGetProductsByArtisan:
             "stock": mock_product.stock,
             "category_id": test_ids['category_id']
         }
+        
+    @pytest.fixture
+    def valid_products_data(self, test_ids):
+        mock_products = mock_factory.product.create_many(2)
+        return [
+            {
+                "product_id": product.product_id,
+                "name": product.name,
+                "description": product.description,
+                "price": product.price,
+                "stock": product.stock,
+                "category_id": None,
+                "artisan_id": test_ids['artisan_id'],
+                "image_url": product.image_url
+            } for product in mock_products
+        ]
         
     def test_get_products_by_artisan_successfully(self, client, created_product):
         artisan_id = created_product.artisan_id
@@ -102,3 +134,31 @@ class TestAPIGetProductsByArtisan:
         data = json.loads(response.data)
         assert isinstance(data, list)
         assert len(data) == 0, "Expected no products for this artisan"
+        
+    def test_get_products_by_artisan_from_same_category(self, client, created_multiple_products_same_category, created_product):
+        
+        same_category_products = created_multiple_products_same_category
+        artisan_id = same_category_products[0].artisan_id
+        category_id = same_category_products[0].category_id
+        product1 = same_category_products[0]
+        product2 = same_category_products[1]
+        product3 = created_product
+        
+        
+        response = client.get(f"/api/artisan/{artisan_id}/products")
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        
+        assert isinstance(data, list)
+        assert len(data) >= 3, "Expected at least two products for this artisan"
+        assert all(p['artisan_id'] == artisan_id for p in data), "Expected all products to belong to the same artisan"
+        assert any(p['product_id'] == product1.product_id for p in data), "Expected product1 to be in the response"
+        assert any(p['product_id'] == product2.product_id for p in data), "Expected product2 to be in the response"
+        assert any(p['product_id'] == product3.product_id for p in data), "Expected product3 to be in the response"
+        counter_cats = Counter(p['category']['category_id'] for p in data)
+        assert counter_cats[product3.category_id] == 1, "Expected products to be from different categories"
+        assert counter_cats[category_id] == 2, "Expected two products from the same category"
+        
+    def test_get_products_by_different_categories(self, client, created_multiple_products_same_category, created_product):
+        #TODO: Implement this test to check if products from different categories are returned correctly
+        pass
