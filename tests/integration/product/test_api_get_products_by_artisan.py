@@ -94,3 +94,11 @@ class TestAPIGetProductsByArtisan:
         assert response.status_code == 400
         data = json.loads(response.data)
         assert data['message'] == "Artisan not found"
+
+    def test_get_products_by_artisan_with_no_products(self, client, created_artisan):
+        artisan_id = created_artisan.artisan_id
+        response = client.get(f"/api/artisan/{artisan_id}/products")
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert isinstance(data, list)
+        assert len(data) == 0, "Expected no products for this artisan"
