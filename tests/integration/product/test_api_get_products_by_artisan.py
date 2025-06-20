@@ -87,3 +87,10 @@ class TestAPIGetProductsByArtisan:
             assert product.stock == product_response['stock'], f"Expected stock {product.stock}, got {product_response.stock}"
             assert product.category_id == product_response['category']['category_id'], f"Expected category_id {product.category_id}, got {product_response.category_id}"
             assert product.artisan_id == product_response['artisan_id'], f"Expected artisan_id {product.artisan_id}, got {product_response.artisan_id}"
+
+    def test_get_products_by_inexistent_artisan(self, client):
+        invalid_artisan_id = str(uuid.uuid4())
+        response = client.get(f"/api/artisan/{invalid_artisan_id}/products")
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert data['message'] == "Artisan not found"
