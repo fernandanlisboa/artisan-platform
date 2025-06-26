@@ -47,6 +47,9 @@ def create_tables(app):
         db.create_all()
         print("Tabelas criadas no banco de teste")
     yield
+    with app.app_context():
+        db.drop_all() # <--- ESTA LINHA LIMPA O BANCO DE DADOS APÓS A SESSÃO DE TESTES
+        print("Tabelas deletadas após a sessão de teste")
 
 @pytest.fixture(scope="session")
 def client(app):
@@ -103,3 +106,65 @@ def created_category(session, valid_category_data):
     valid_category_data['category_id'] = category.category_id
     return category
 
+@pytest.fixture
+def created_product(session, created_artisan, created_category, valid_product_data):
+    from app.infrastructure.persistence.models_db.product_db_model import ProductDBModel
+    # Garante que o ID da categoria na fixture de produto seja o mesmo da categoria criada
+    valid_product_data['product_id'] = str(uuid.uuid4())  # Garante que o ID do produto seja único
+    valid_product_data['category_id'] = created_category.category_id
+    valid_product_data['artisan_id'] = created_artisan.artisan_id
+    product = ProductDBModel.query.filter_by(product_id=valid_product_data['product_id']).first()
+    if product is None:
+        product = ProductDBModel(**valid_product_data)
+        session.add(product)
+        session.commit()
+    return product
+
+@pytest.fixture
+def created_multiple_categories(session, valid_categories_data):
+    from app.infrastructure.persistence.models_db.category_db_model import CategoryDBModel
+    categories = []
+    for data in valid_categories_data:
+        category = CategoryDBModel.query.filter_by(name=data['name']).first()
+        if category is not None:
+            categories.append(category)
+            continue
+        category = CategoryDBModel(**data)
+        session.add(category)
+        session.commit()
+        categories.append(category)
+    return categories
+
+@pytest.fixture
+def created_multiple_products_same_category(session, created_artisan, created_multiple_categories, valid_products_data):
+    from app.infrastructure.persistence.models_db.product_db_model import ProductDBModel
+    products = []
+    for data in valid_products_data:
+        data['category_id'] = created_multiple_categories[0].category_id
+        data['artisan_id'] = created_artisan.artisan_id
+        product = ProductDBModel.query.filter_by(product_id=data['product_id']).first()
+        if product is not None:
+            continue
+        product = ProductDBModel(**data)
+        session.add(product)
+        session.commit()
+        products.append(product)
+    return products
+
+@pytest.fixture
+def created_multiple_products_different_categories(session, created_artisan, valid_categories_data, valid_products_data):
+    from app.infrastructure.persistence.models_db.product_db_model import ProductDBModel
+    products = []
+    for i, data in enumerate(valid_products_data):
+        data['category_id'] = valid_categories_data[i]['category_id']
+         # Garante que cada produto tenha um ID único
+        data['artisan_id'] = created_artisan.artisan_id
+        product = ProductDBModel.query.filter_by(product_id=data['product_id']).first()
+        if product is not None:
+            products.append(product)
+            continue
+        product = ProductDBModel(**data)
+        session.add(product)
+        session.commit()
+        products.append(product)
+    return products
