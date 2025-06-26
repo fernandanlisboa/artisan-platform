@@ -145,9 +145,10 @@ class TestAPIProductCreation:
     def test_create_product_with_inexistent_category(self, session, client, created_artisan, valid_product_data):
         invalid_category_id = str(uuid.uuid4())
         valid_product_data['category_id'] = invalid_category_id
-        response = client.post(f'/api/artisan/{created_artisan.artisan_id}/product', data=json.dumps(valid_product_data), content_type='application/json')
+        response = client.post(f'/api/artisan/{created_artisan.artisan_id}/products', data=json.dumps(valid_product_data), content_type='application/json')
         print("API Response Body:", response.json)
         # assert response.status_code == 400
+
         assert response.json['message'] == 'Category does not exist'
         
     def test_create_same_artisan_product(self, session, client, created_artisan, created_category, valid_product_data):
