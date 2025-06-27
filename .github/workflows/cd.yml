@@ -67,7 +67,7 @@ jobs:
       working-directory: . # Executa o comando gcloud da raiz do repositório
       env:
         # As variáveis de ambiente para o Alembic também precisam ser passadas.
-        DATABASE_URL: mysql+pymysql://app-user:${{ secrets.DB_PROD_MIGRATION_PASSWORD }}@34.16.37.251:3306/artisan_platform
+        DATABASE_URL: mysql+pymysql://app-user:${{ secrets.DB_PROD_MIGRATION_PASSWORD }}@${{ secrets.DB_PROD_HOST }}:3306/artisan_platform
         # Nota: 127.0.0.1:3306 geralmente funciona com 'gcloud sql connect' porque ele cria um proxy local.
 
     - name: Deploy application
