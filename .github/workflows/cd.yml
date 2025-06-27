@@ -18,10 +18,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.9 # Mantendo 3.9 para consistência. Altere para '3.12' se seu Dockerfile também usar 3.12.
+      - name: Set up Python 3.12 # Mantendo 3.9 para consistência. Altere para '3.12' se seu Dockerfile também usar 3.12.
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9' 
+          python-version: '3.12' 
 
       - name: Install dependencies
         run: |
