@@ -17,8 +17,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: Debug: Print alembic.ini content # <--- NOVO STEP DE DEBUG
+
+      - name: Print alembic.ini content # <--- NOVO STEP DE DEBUG
         run: cat app/infrastructure/database/alembic/alembic.ini
 
       - name: Set up Python 3.12
