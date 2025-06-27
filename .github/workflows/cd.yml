@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Print alembic.ini content # <--- NOVO STEP DE DEBUG
-        run: cat app/infrastructure/database/alembic/alembic.ini
+        run: cat app/infrastructure/database/alembic.ini
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -59,7 +59,7 @@ jobs:
 
           alembic upgrade head
           
-        working-directory: app/infrastructure/database/alembic
+        # working-directory: app/infrastructure/database/alembic
         env:
           # Variáveis de ambiente para o Alembic se conectar ao DB de produção.
           # O formato é CHAVE: VALOR
