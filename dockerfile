@@ -14,11 +14,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expõe a porta que o Flask vai usar (padrão 5000)
-EXPOSE 5000
+EXPOSE 8080
 
 # Define a variável de ambiente FLASK_APP para o Flask
 ENV FLASK_APP=run.py
 ENV FLASK_DEBUG=False
 
 # Comando para rodar a aplicação Flask quando o contêiner iniciar
-CMD ["flask", "run", "--host=0.0.0.0", "--port", "5000"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port", "8080"]
