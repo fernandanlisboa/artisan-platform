@@ -1,0 +1,93 @@
+
+name: CD Backend Deployment # Nome do workflow de Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main # O deploy para produção/homologação é acionado por push na branch main (conforme GitFlow para releases)
+  workflow_dispatch: # Permite acionar o workflow manualmente na interface do GitHub Actions
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # O sistema operacional onde o job será executado
+    [cite_start]needs: build-test-security # Este job SÓ RODA se o job 'build-test-security' (do seu main.yml) for bem-sucedido. [cite: 3]
+
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v4 # Baixa o código do seu repositório
+
+    - name: Set up Python 3.9 # Use a versão do Python do seu projeto (Python 3.9 é a versão que temos usado)
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # Instala as dependências do seu requirements.txt (deve conter apenas libs de produção)
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Autenticar no Google Cloud
+      # Usa as credenciais da conta de serviço GCP (armazenadas em GitHub Secrets) para autenticar no Google Cloud.
+      uses: google-github-actions/auth@v2 
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }} # Segredo com a chave JSON da conta de serviço.
+        project_id: ${{ secrets.GCP_PROJECT_ID }} # Segredo com o ID do seu projeto GCP.
+
+    - name: Configurar Docker para Google Container Registry/Artifact Registry
+      # Configura o Docker CLI para autenticar e usar o registro de imagens do Google.
+      run: gcloud auth configure-docker
+
+    - name: Construir e Publicar Imagem Docker
+      # Usa o Dockerfile (na raiz do projeto) para construir e publicar a imagem.
+      uses: docker/build-push-action@v5 
+      with:
+        context: . # O contexto é a raiz do seu projeto (onde o Dockerfile está)
+        push: true # Faz o push da imagem para o registry
+        tags: gcr.io/${{ secrets.GCP_PROJECT_ID }}/artisan-backend:${{ github.sha }} # Tag da imagem: projectID/nome-da-imagem:commitSHA
+        # Para Artifact Registry, mude 'gcr.io' para seu hostname (ex: us-central1-docker.pkg.dev/...)
+
+    - name: Configurar GCloud CLI para Cloud SQL Connect (para migrações)
+      # Instala o gcloud CLI no runner, necessário para gcloud sql connect.
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Run database migrations
+      # Aplica as migrações ao banco de dados REAL de produção/homologação.
+      run: |
+        echo "Running database migrations..."
+        # Conecta-se à instância Cloud SQL e executa o comando Alembic
+        # Substitua YOUR_CLOUD_SQL_INSTANCE_NAME pelo nome real da sua instância Cloud SQL no GCP.
+        # Substitua your_db_migration_user pelo nome do usuário do DB com permissão para migrações.
+        # Use a senha via GitHub Secret (DB_PROD_MIGRATION_PASSWORD).
+        gcloud sql connect YOUR_CLOUD_SQL_INSTANCE_NAME --user=your_db_migration_user --quiet --password=${{ secrets.DB_PROD_MIGRATION_PASSWORD }} <<EOF
+        cd /github/workspace/app/infrastructure/database/alembic # Navega para o diretório do Alembic
+        alembic upgrade head # Executa o comando de migração
+        EOF
+      # O working-directory e as variáveis de ambiente devem apontar para a localização do Alembic
+      working-directory: . # Executa o comando gcloud da raiz do repositório
+      env:
+        # As variáveis de ambiente para o Alembic também precisam ser passadas.
+        DATABASE_URL: mysql+pymysql://app-user:${{ secrets.DB_PROD_MIGRATION_PASSWORD }}@${{ secrets.DB_PROD_HOST }}:3306/artisan_platform
+        # Nota: 127.0.0.1:3306 geralmente funciona com 'gcloud sql connect' porque ele cria um proxy local.
+
+    - name: Deploy application
+      # Implanta a imagem Docker construída no Google Cloud Run.
+      uses: google-github-actions/deploy-cloudrun@v2 
+      with:
+        service: artisan-backend-api # Nome do seu serviço Cloud Run
+        region: us-central1 # Mude para sua região do GCP (ex: southamerica-east1)
+        image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/artisan-backend:${{ github.sha }} # Imagem que acabou de ser publicada
+        env_vars: | # Variáveis de ambiente para sua aplicação no Cloud Run (NÃO COLOQUE SEGREDOS DIRETAMENTE AQUI!)
+          FLASK_DEBUG=False # Sempre False em produção
+          # Exemplo de como configurar DB_URL ou JWT_SECRET via Secret Manager no Cloud Run (melhor prática)
+          # DATABASE_URL=/secrets/projects/${{ secrets.GCP_PROJECT_ID }}/secrets/DB_PROD_URL/versions/latest
+          # JWT_SECRET_KEY=/secrets/projects/${{ secrets.GCP_PROJECT_ID }}/secrets/JWT_SECRET_KEY_PROD/versions/latest
+        # secrets: | # Opcional: Se usar Secret Manager para carregar JWT_SECRET_KEY, DB_URL, etc.
+        #   JWT_SECRET_KEY=projects/${{ secrets.GCP_PROJECT_ID }}/secrets/JWT_SECRET_KEY/versions/latest
+        echo "Deployment completed!"
+
+    - name: Post-deployment tasks
+      run: |
+        echo "Running post-deployment tasks..."
+        # Adicione comandos para rodar tarefas pós-deploy aqui (ex: smoke tests, notificações)
+        echo "Post-deployment tasks completed!"
