@@ -1,7 +1,7 @@
 # Dockerfile
 
 # Usa uma imagem base oficial do Python (Python 3.9 é a versão que temos usado)
-FROM python:3.12-slim-buster
+FROM python:3.12-slim
 
 # Define o diretório de trabalho no contêiner
 WORKDIR /app
