@@ -18,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.9 # Ajustado para 3.9 para consistência com o que temos usado
+      - name: Set up Python 3.9 # Mantendo 3.9 para consistência. Altere para '3.12' se seu Dockerfile também usar 3.12.
         uses: actions/setup-python@v5
         with:
           python-version: '3.9' 
@@ -40,7 +40,7 @@ jobs:
       - name: Construir e Publicar Imagem Docker
         uses: docker/build-push-action@v5 
         with:
-          context: . 
+          context: . # O contexto é a raiz do seu projeto (onde o Dockerfile está)
           push: true 
           tags: gcr.io/${{ secrets.GCP_PROJECT_ID }}/artisan-backend:${{ github.sha }} 
 
@@ -50,12 +50,17 @@ jobs:
       - name: Run database migrations
         run: |
           echo "Running database migrations..."
-          gcloud sql connect  mysql-db --user=app-user --quiet --password=${{ secrets.DB_PROD_MIGRATION_PASSWORD }} <<EOF
+          # Conecta-se à instância Cloud SQL e executa o comando Alembic
+          # Substitua YOUR_CLOUD_SQL_INSTANCE_NAME pelo nome real da sua instância Cloud SQL no GCP.
+          # Substitua your_db_migration_user pelo nome do usuário do DB com permissão para migrações.
+          gcloud sql connect YOUR_CLOUD_SQL_INSTANCE_NAME --user=your_db_migration_user --quiet --password=${{ secrets.DB_PROD_MIGRATION_PASSWORD }} <<EOF
           cd /github/workspace/app/infrastructure/database/alembic
           alembic upgrade head
           EOF
         working-directory: . 
         env:
+          # Variáveis de ambiente para o Alembic se conectar ao DB de produção.
+          # O formato é CHAVE: VALOR
           DATABASE_URL: mysql+pymysql://app-user:${{ secrets.DB_PROD_MIGRATION_PASSWORD }}@${{ secrets.DB_PROD_HOST }}:3306/artisan_platform 
 
       - name: Deploy application
@@ -64,19 +69,18 @@ jobs:
           service: artisan-backend-api # Nome do seu serviço Cloud Run
           region: us-central1 # Mude para sua região do GCP
           image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/artisan-backend:${{ github.sha }} 
-          # --- CORREÇÃO AQUI NA LINHA 91 (env_vars e secrets) ---
-          env_vars: FLASK_DEBUG=False
-          # Se usar Secret Manager, referencie o segredo do Secret Manager aqui:
-          # env_vars: DB_PROD_URL=projects/${{ secrets.GCP_PROJECT_ID }}/secrets/DB_PROD_URL/versions/latest,JWT_SECRET_KEY_PROD=projects/${{ secrets.GCP_PROJECT_ID }}/secrets/JWT_SECRET_KEY_PROD/versions/latest
-          # --- O bloco 'secrets:' dentro de 'with:' está fora do 'env_vars' ---
-          # E a indentação para 'secrets' deve ser a mesma de 'env_vars'
-          # Você pode passar segredos diretamente para o Cloud Run se não usar Secret Manager,
-          # mas o Secret Manager é a melhor prática para produção.
-          # Para passar diretamente (menos seguro para produção, mas funciona):
-          # secrets:
+          
+          # --- CORREÇÃO AQUI NO BLOCO 'env_vars' e 'secrets' (Linha 91) ---
+          env_vars: | # Corrigido para string multilinha, pois o deploy-cloudrun espera um bloco de texto
+            FLASK_DEBUG=False
+            DATABASE_URL=projects/${{ secrets.GCP_PROJECT_ID }}/secrets/DB_PROD_URL/versions/latest
+            JWT_SECRET_KEY=projects/${{ secrets.GCP_PROJECT_ID }}/secrets/JWT_SECRET_KEY_PROD/versions/latest
+          
+          # Se você quiser passar segredos DIRETAMENTE via este bloco 'secrets' (menos seguro para prod):
+          # secrets: # 'secrets' espera um MAPEAMENTO (dicionário) de CHAVE: VALOR
           #   DB_PROD_URL: ${{ secrets.DB_PROD_URL }}
           #   JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY_PROD }}
-        # --- FIM DA CORREÇÃO ---
+          # --- FIM DA CORREÇÃO ---
 
       - name: Post-deployment tasks
         run: |
