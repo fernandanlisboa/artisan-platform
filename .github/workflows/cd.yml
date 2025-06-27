@@ -51,9 +51,9 @@ jobs:
         run: |
           echo "Running database migrations..."
           # Conecta-se à instância Cloud SQL e executa o comando Alembic
-          # Substitua YOUR_CLOUD_SQL_INSTANCE_NAME pelo nome real da sua instância Cloud SQL no GCP.
-          # Substitua your_db_migration_user pelo nome do usuário do DB com permissão para migrações.
-          gcloud sql connect YOUR_CLOUD_SQL_INSTANCE_NAME --user=your_db_migration_user --quiet --password=${{ secrets.DB_PROD_MIGRATION_PASSWORD }} <<EOF
+          # Substitua mysql-db pelo nome real da sua instância Cloud SQL no GCP.
+          # Substitua app-user pelo nome do usuário do DB com permissão para migrações.
+          gcloud sql connect mysql-db --user=app-user --quiet --password=${{ secrets.DB_PROD_MIGRATION_PASSWORD }} <<EOF
           cd /github/workspace/app/infrastructure/database/alembic
           alembic upgrade head
           EOF
