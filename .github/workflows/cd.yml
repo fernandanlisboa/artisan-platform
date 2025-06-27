@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Print alembic.ini content # <--- NOVO STEP DE DEBUG
-        run: cat app/infrastructure/database/alembic.ini
+        run: cat alembic.ini
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
