@@ -53,10 +53,10 @@ jobs:
           # Conecta-se à instância Cloud SQL e executa o comando Alembic
           gcloud sql connect mysql-db --user=admin --quiet &
           sleep 15
-          cd /github/workspace/app/infrastructure/database/alembic
+
           alembic upgrade head
           
-        working-directory: . 
+        working-directory: app/infrastructure/database/alembic
         env:
           # Variáveis de ambiente para o Alembic se conectar ao DB de produção.
           # O formato é CHAVE: VALOR
