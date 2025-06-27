@@ -51,10 +51,11 @@ jobs:
         run: |
           echo "Running database migrations..."
           # Conecta-se à instância Cloud SQL e executa o comando Alembic
-          gcloud sql connect mysql-db --user=admin --quiet --password=${{ secrets.DB_PROD_MIGRATION_PASSWORD }} <<EOF
+          gcloud sql connect mysql-db --user=admin --quiet --password=${{ secrets.DB_PROD_MIGRATION_PASSWORD }}
+          sleep 15
           cd /github/workspace/app/infrastructure/database/alembic
           alembic upgrade head
-          EOF
+          
         working-directory: . 
         env:
           # Variáveis de ambiente para o Alembic se conectar ao DB de produção.
