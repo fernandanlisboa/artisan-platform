@@ -53,7 +53,7 @@ jobs:
           # Conecta-se à instância Cloud SQL e executa o comando Alembic
           # Substitua mysql-db pelo nome real da sua instância Cloud SQL no GCP.
           # Substitua app-user pelo nome do usuário do DB com permissão para migrações.
-          gcloud sql connect mysql-db --user=app-user --quiet --password=${{ secrets.DB_PROD_MIGRATION_PASSWORD }} <<EOF
+          gcloud sql connect mysql-db --user=admin --quiet --password=${{ secrets.DB_PROD_MIGRATION_PASSWORD }} <<EOF
           cd /github/workspace/app/infrastructure/database/alembic
           alembic upgrade head
           EOF
@@ -61,7 +61,7 @@ jobs:
         env:
           # Variáveis de ambiente para o Alembic se conectar ao DB de produção.
           # O formato é CHAVE: VALOR
-          DATABASE_URL: mysql+pymysql://app-user:${{ secrets.DB_PROD_MIGRATION_PASSWORD }}@${{ secrets.DB_PROD_HOST }}:3306/artisan_platform 
+          DATABASE_URL: mysql+pymysql://admin:${{ secrets.DB_PROD_MIGRATION_PASSWORD }}@${{ secrets.DB_PROD_HOST }}:3306/artisan_platform 
 
       - name: Deploy application
         uses: google-github-actions/deploy-cloudrun@v2 
