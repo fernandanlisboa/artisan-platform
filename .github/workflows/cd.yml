@@ -78,7 +78,7 @@ jobs:
             FLASK_DEBUG=False
             DATABASE_URL=projects/${{ secrets.GCP_PROJECT_ID }}/secrets/DB_PROD_URL/versions/latest
         # JWT_SECRET_KEY=projects/${{ secrets.GCP_PROJECT_ID }}/secrets/JWT_SECRET_KEY_PROD/versions/latest
-          
+          timeout: 300s
           # Se você quiser passar segredos DIRETAMENTE via este bloco 'secrets' (menos seguro para prod):
           # secrets: # 'secrets' espera um MAPEAMENTO (dicionário) de CHAVE: VALOR
           #   DB_PROD_URL: ${{ secrets.DB_PROD_URL }}
