@@ -59,7 +59,6 @@ jobs:
 
           alembic upgrade head
           
-        # working-directory: app/infrastructure/database/alembic
         env:
           # Variáveis de ambiente para o Alembic se conectar ao DB de produção.
           # O formato é CHAVE: VALOR
@@ -73,10 +72,7 @@ jobs:
           image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/artisan-backend:${{ github.sha }} 
 
           flags: --allow-unauthenticated # Permite acesso não autenticado (pode ser alterado conforme necessidade)
-          # --- CORREÇÃO AQUI NO BLOCO 'env_vars' e 'secrets' (Linha 91) ---
-          env_vars: | # Corrigido para string multilinha, pois o deploy-cloudrun espera um bloco de texto
-            FLASK_DEBUG=False
-            DATABASE_URL=${{ secrets.DB_CLOUD_RUN_URL }} 
+          env_vars: "FLASK_DEBUG=False,DATABASE_URL=${{ secrets.DB_CLOUD_RUN_URL }}"
           timeout: 300s
 
       - name: Post-deployment tasks
