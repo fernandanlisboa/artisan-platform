@@ -21,4 +21,4 @@ ENV FLASK_APP=run.py
 ENV FLASK_DEBUG=False
 
 # Comando para rodar a aplicação Flask quando o contêiner iniciar
-CMD ["flask", "run", "--host=0.0.0.0", "--port", "8080"]
+CMD ["flask", "run", "--host=0.0.0.0"]
