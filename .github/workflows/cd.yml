@@ -72,7 +72,7 @@ jobs:
           region: us-central1 # Mude para sua região do GCP
           image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/artisan-backend:${{ github.sha }} 
 
-          allow_unauthenticated: true # Permite acesso não autenticado (pode ser alterado conforme necessidade)
+          flags: --allow-unauthenticated # Permite acesso não autenticado (pode ser alterado conforme necessidade)
           # --- CORREÇÃO AQUI NO BLOCO 'env_vars' e 'secrets' (Linha 91) ---
           env_vars: | # Corrigido para string multilinha, pois o deploy-cloudrun espera um bloco de texto
             FLASK_DEBUG=False
