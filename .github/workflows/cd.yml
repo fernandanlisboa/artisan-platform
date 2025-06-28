@@ -76,7 +76,7 @@ jobs:
           # --- CORREÇÃO AQUI NO BLOCO 'env_vars' e 'secrets' (Linha 91) ---
           env_vars: | # Corrigido para string multilinha, pois o deploy-cloudrun espera um bloco de texto
             FLASK_DEBUG=False
-            DATABASE_URL=${{ secrets.GCP_PROJECT_ID }}
+            DATABASE_URL=mysql+pymysql://admin:${{ secrets.DB_PROD_MIGRATION_PASSWORD }}@${{ secrets.DB_PROD_HOST }}:3306/artisan_platform 
           timeout: 300s
 
       - name: Post-deployment tasks
