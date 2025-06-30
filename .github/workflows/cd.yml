@@ -1,0 +1,81 @@
+# .github/workflows/deploy.yml
+
+name: Artisan Platform - Continuous Deployment # Nome do workflow
+
+on:
+  push:
+    branches:
+      - main # Gatilho para deploys automáticos em 'main' (após merge de develop)
+  workflow_dispatch: # Permite acionar o workflow manualmente na interface do GitHub Actions
+
+jobs:
+  deploy:
+    name: Deploy to Production # Nome do job de deploy
+    runs-on: ubuntu-latest # O sistema operacional onde o job será executado
+    # needs: [build-test-security] # Removido para evitar erro de dependência inválida.
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Print alembic.ini content # <--- NOVO STEP DE DEBUG
+        run: cat alembic.ini
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12' 
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Autenticar no Google Cloud
+        uses: google-github-actions/auth@v2 
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }} 
+          project_id: ${{ secrets.GCP_PROJECT_ID }} 
+
+      - name: Configurar Docker para Google Container Registry/Artifact Registry
+        run: gcloud auth configure-docker
+
+      - name: Construir e Publicar Imagem Docker
+        uses: docker/build-push-action@v5 
+        with:
+          context: . # O contexto é a raiz do seu projeto (onde o Dockerfile está)
+          push: true 
+          tags: gcr.io/${{ secrets.GCP_PROJECT_ID }}/artisan-backend:${{ github.sha }} 
+
+      - name: Configurar GCloud CLI para Cloud SQL Connect (para migrações)
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Run database migrations
+        run: |
+          echo "Running database migrations..."
+          # Conecta-se à instância Cloud SQL e executa o comando Alembic
+          gcloud sql connect mysql-db --user=admin --quiet &
+          sleep 15
+
+          alembic upgrade head
+          
+        env:
+          # Variáveis de ambiente para o Alembic se conectar ao DB de produção.
+          # O formato é CHAVE: VALOR
+          DATABASE_URL: mysql+pymysql://admin:${{ secrets.DB_PROD_MIGRATION_PASSWORD }}@${{ secrets.DB_PROD_HOST }}:3306/artisan_platform 
+
+      - name: Deploy application
+        uses: google-github-actions/deploy-cloudrun@v2 
+        with:
+          service: artisan-backend-api # Nome do seu serviço Cloud Run
+          region: us-central1 # Mude para sua região do GCP
+          image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/artisan-backend:${{ github.sha }} 
+
+          flags: --allow-unauthenticated # Permite acesso não autenticado (pode ser alterado conforme necessidade)
+          env_vars: "FLASK_DEBUG=False,DATABASE_URL=${{ secrets.DB_CLOUD_RUN_URL }}"
+          timeout: 300s
+
+      - name: Post-deployment tasks
+        run: |
+          echo "Running post-deployment tasks..."
+          echo "Post-deployment tasks completed!"
