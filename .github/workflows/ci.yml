@@ -1,172 +1,172 @@
-# name: Artisan Platform CI & Security Scan
+name: Artisan Platform CI & Security Scan
 
-# on:
-#   push:
-#     branches: [ develop ]
-#   pull_request:
-#     branches: [ develop ]
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
 
-# jobs:
-#   # JOB 1: tests with multiple Python versions
-#   test:
-#     name: Run tests with multiple Python versions
-#     runs-on: ubuntu-latest
-#     strategy:
-#       matrix:
-#         python-version: ['3.10', 3.11, 3.12]
+jobs:
+  # JOB 1: tests with multiple Python versions
+  test:
+    name: Run tests with multiple Python versions
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', 3.11, 3.12]
 
-#     services:
-#       mysql:
-#         image: mysql:8.0
-#         env:
-#           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-#           MYSQL_DATABASE: artisan_test
-#         ports:
-#           - 3306:3306
-#         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: artisan_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-#     steps:
-#     - uses: actions/checkout@v4
+    steps:
+    - uses: actions/checkout@v4
     
-#     - name: Set up Python ${{ matrix.python-version }}
-#       uses: actions/setup-python@v5
-#       with:
-#         python-version: ${{ matrix.python-version }}
-#         cache: 'pip'
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
     
-#     - name: Install dependencies
-#       run: |
-#         python -m pip install --upgrade pip
-#         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-#         pip install pytest pytest-cov flake8 mysql-connector-python
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install pytest pytest-cov flake8 mysql-connector-python
     
-#     - name: Lint with flake8
-#       run: |
-#         # stop the build if there are Python syntax errors or undefined names
-#         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-#         # exit-zero treats all errors as warnings
-#         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     
-#     - name: Configure test environment
-#       run: |
-#         cp .env.example .env
-#         echo "FLASK_ENV=testing" >> .env
-#         echo "DATABASE_URL=mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test" >> .env
-#         echo "FLASK_SECRET_KEY=testing-key-for-ci" >> .env
+    - name: Configure test environment
+      run: |
+        cp .env.example .env
+        echo "FLASK_ENV=testing" >> .env
+        echo "DATABASE_URL=mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test" >> .env
+        echo "FLASK_SECRET_KEY=testing-key-for-ci" >> .env
     
-#     - name: Run Migrations
-#       run: |
+    - name: Run Migrations
+      run: |
         
-#         alembic --version
+        alembic --version
         
-#         alembic current
+        alembic current
         
-#         alembic upgrade head
+        alembic upgrade head
         
-#         alembic current
-#       env:
-#         DATABASE_URL: mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test
+        alembic current
+      env:
+        DATABASE_URL: mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test
 
-#     - name: Test with pytest
-#       run: |
-#         pytest --cov=app tests/
+    - name: Test with pytest
+      run: |
+        pytest --cov=app tests/
     
-#     - name: Upload coverage to Codecov
-#       uses: codecov/codecov-action@v4
-#       with:
-#         fail_ci_if_error: false
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        fail_ci_if_error: false
 
-#   # JOB 2: security scan
-#   security_scan:
-#     name: Security Scans (SAST & DAST)
-#     runs-on: ubuntu-latest
-#     needs: test 
+  # JOB 2: security scan
+  security_scan:
+    name: Security Scans (SAST & DAST)
+    runs-on: ubuntu-latest
+    needs: test 
     
-#     steps:
-#     - uses: actions/checkout@v4
+    steps:
+    - uses: actions/checkout@v4
 
-#     - name: Set up Python 3.12
-#       uses: actions/setup-python@v5
-#       with:
-#         python-version: '3.12'
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
 
-#     - name: Install dependencies
-#       run: |
-#         python -m pip install --upgrade pip
-#         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-#         pip install bandit
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install bandit
 
-#     - name: Static Analysis (SAST) with Bandit
-#       run: bandit -r . -ll -ii
+    - name: Static Analysis (SAST) with Bandit
+      run: bandit -r . -ll -ii
 
-#     - name: Start Flask application in background
-#       env:
-#         FLASK_ENV: development
-#         DATABASE_URL: "sqlite:///dast_test.db" 
-#         FLASK_APP: app
-#         FLASK_SECRET_KEY: "dast-key"
-#         FLASK_DEBUG: "1"
-#       run: |
-#         # Verificar a versão do Flask
-#         flask --version
+    - name: Start Flask application in background
+      env:
+        FLASK_ENV: development
+        DATABASE_URL: "sqlite:///dast_test.db" 
+        FLASK_APP: app
+        FLASK_SECRET_KEY: "dast-key"
+        FLASK_DEBUG: "1"
+      run: |
+        # Verificar a versão do Flask
+        flask --version
         
-#         # Listar todas as rotas registradas para diagnóstico
-#         echo "Listing all registered routes:"
-#         flask routes
+        # Listar todas as rotas registradas para diagnóstico
+        echo "Listing all registered routes:"
+        flask routes
         
-#         # Iniciar a aplicação com saída detalhada
-#         nohup flask run > flask_output.log 2>&1 &
+        # Iniciar a aplicação com saída detalhada
+        nohup flask run > flask_output.log 2>&1 &
         
-#         # Guardar o PID para referência
-#         echo $! > flask.pid
+        # Guardar o PID para referência
+        echo $! > flask.pid
         
-#         # Aguardar um momento
-#         sleep 5
+        # Aguardar um momento
+        sleep 5
         
-#         # Mostrar o log para diagnóstico
-#         cat flask_output.log
+        # Mostrar o log para diagnóstico
+        cat flask_output.log
 
-#     - name: Wait for application to start
-#       run: |
-#         echo "Waiting for Flask app to become available..."
-#         timeout 60s bash -c 'until curl -s http://127.0.0.1:5000 > /dev/null; do echo -n "."; sleep 1; done'
-#         echo "Flask app is up!"
+    - name: Wait for application to start
+      run: |
+        echo "Waiting for Flask app to become available..."
+        timeout 60s bash -c 'until curl -s http://127.0.0.1:5000 > /dev/null; do echo -n "."; sleep 1; done'
+        echo "Flask app is up!"
 
-#     - name: Set write permissions for ZAP report
-#       run: sudo chmod -R 777 ${{ github.workspace }}
+    - name: Set write permissions for ZAP report
+      run: sudo chmod -R 777 ${{ github.workspace }}
 
-#     - name: API Security Scan (DAST) with OWASP ZAP
-#       continue-on-error: true  # Continuar mesmo com avisos
-#       run: |
-#         docker run --network=host \
-#           -v ${{ github.workspace }}:/zap/wrk/:rw \
-#           ghcr.io/zaproxy/zaproxy:stable \
-#           zap-api-scan.py \
-#             -t /zap/wrk/openapi.json \
-#             -f openapi \
-#             -r zap_report.html \
-#             -I \
-#             -d
+    - name: API Security Scan (DAST) with OWASP ZAP
+      continue-on-error: true  # Continuar mesmo com avisos
+      run: |
+        docker run --network=host \
+          -v ${{ github.workspace }}:/zap/wrk/:rw \
+          ghcr.io/zaproxy/zaproxy:stable \
+          zap-api-scan.py \
+            -t /zap/wrk/openapi.json \
+            -f openapi \
+            -r zap_report.html \
+            -I \
+            -d
 
-#     - name: Upload ZAP Report
-#       uses: actions/upload-artifact@v4
-#       if: always()
-#       with:
-#         name: zap-scan-report
-#         path: zap_report.html
+    - name: Upload ZAP Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: zap-scan-report
+        path: zap_report.html
 
-#     - name: Verify OpenAPI specification
-#       run: |
-#         echo "Verifying OpenAPI routes:"
-#         grep -o '"\/[^"]*"' openapi.json | sort -u
+    - name: Verify OpenAPI specification
+      run: |
+        echo "Verifying OpenAPI routes:"
+        grep -o '"\/[^"]*"' openapi.json | sort -u
 
-#     - name: Compare OpenAPI routes with actual routes
-#       run: |
-#         echo "Routes in OpenAPI:"
-#         grep -o '"\/[^"]*"' openapi.json | sort -u
+    - name: Compare OpenAPI routes with actual routes
+      run: |
+        echo "Routes in OpenAPI:"
+        grep -o '"\/[^"]*"' openapi.json | sort -u
         
-#         echo "Actual implemented routes:"
-#         flask routes | grep -v "static" | awk '{print $2}' | sort -u
+        echo "Actual implemented routes:"
+        flask routes | grep -v "static" | awk '{print $2}' | sort -u
         
-#         echo "Creating a corrected OpenAPI file if needed..."
-#         # Adicione lógica para ajustar o OpenAPI se necessário
+        echo "Creating a corrected OpenAPI file if needed..."
+        # Adicione lógica para ajustar o OpenAPI se necessário
