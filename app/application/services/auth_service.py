@@ -19,13 +19,8 @@ class AuthService:
         Returns:
             User: The authenticated user or None if authentication fails
         """
-        user = self.user_repository.get_by_email(email)
-        
-        if not user:
+        if user := self.user_repository.get_by_email(email):
+                # Check if the provided password matches the stored Argon2 hash
+            return user if verify_password(password, user.hashed_password) else None
+        else:
             return None
-        
-        # Check if the provided password matches the stored Argon2 hash
-        if verify_password(password, user.hashed_password):
-            return user
-            
-        return None
