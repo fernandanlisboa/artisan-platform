@@ -1,6 +1,8 @@
 from typing import Optional
 from app.common.password_utils import verify_password
 from app.domain.repositories.user_repository_interface import IUserRepository
+from app.domain.models.user import UserEntity as User
+
 
 class AuthService:
     def __init__(self, user_repository: IUserRepository):
