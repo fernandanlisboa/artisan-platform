@@ -13,7 +13,7 @@ class UserRepository(IUserRepository):
         # CONVERSION: Pure Domain Entity -> ORM Model
         user_db_model = UserDBModel(
             email=user_entity.email,
-            password_hash=user_entity.password, 
+            hashed_password=user_entity.hashed_password, 
             status=user_entity.status,
             registration_date=datetime.now(timezone.utc),  # Use UTC for consistency
             address_id=user_entity.address_id  # Added address_id

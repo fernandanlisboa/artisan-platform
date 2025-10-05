@@ -15,7 +15,7 @@ class UserDBModel(db.Model):
 
     user_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()), name='user_id') # PK as per diagram
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False, name='password') # Stores password hash, original name 'senha'
+    hashed_password = db.Column(db.String(255), nullable=False, name='password') # Stores password hash, original name 'senha'
     registration_date = db.Column(db.DateTime, default=datetime.now(timezone.utc), name='registration_date') # Original name 'data_cadastro'
     status = db.Column(db.String(20), nullable=False, default='active') # E.g., 'active', 'inactive', 'pending'
 
@@ -43,13 +43,13 @@ class UserDBModel(db.Model):
     received_messages = relationship('MessageDBModel', foreign_keys='[MessageDBModel.recipient_user_id]', backref='recipient_user')
     
     # --- Método __init__ (Essencial!) ---
-    def __init__(self, email: str, password_hash: str, status: str = 'active', 
+    def __init__(self, email: str, hashed_password: str, status: str = 'active', 
                  user_id: str = None, registration_date: datetime = None,
                  address_id: str = None):  # Adicionado address_id
         if user_id is not None:
             self.user_id = user_id
         self.email = email
-        self.password_hash = password_hash
+        self.hashed_password = hashed_password
         # self.role = role  # Remover esta linha, role não existe nos parâmetros
         self.status = status
         self.registration_date = registration_date if registration_date else datetime.now(timezone.utc)
