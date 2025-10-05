@@ -9,6 +9,7 @@ from app.presentation.dtos.user_dtos import RegisterBuyerRequest, BuyerRegistrat
 from app.domain.models.user import UserEntity as User
 from app.domain.models.artisan import ArtisanEntity
 from app.domain.models.buyer import BuyerEntity
+from app.common.password_utils import hash_password
 
 import re
 
@@ -144,10 +145,13 @@ class UserRegistrationService:
         if not is_valid:
             raise ValueError(error_message)
         
+        # Hash the password with Argon2
+        hashed_password = hash_password(request_data.password)
+        
         user_entity = User(
             user_id=None,  # ID será gerado
             email=request_data.email,
-            password=request_data.password,  # Aqui você deve aplicar a lógica de hash da senha
+            password=hashed_password,
             status='active',  # Status do usuário, pode ser 'active', 'inactive', etc.
             address_id=saved_address.address_id,  # Inicialmente None, será atualizado após salvar o endereço
         )
@@ -201,10 +205,13 @@ class UserRegistrationService:
         if not is_valid:
             raise ValueError(error_message)
         
+        hashed_password = hash_password(request_data.password)
+        
+        
         user_entity = User(
             user_id=None,  # ID será gerado
             email=request_data.email,
-            password=request_data.password,  # Aqui você deve aplicar a lógica de hash da senha
+            password=hashed_password,
             status='active',  # Status do usuário, pode ser 'active', 'inactive', etc.
             address_id=saved_address.address_id,  # Inicialmente None, será atualizado após salvar o endereço
         )
