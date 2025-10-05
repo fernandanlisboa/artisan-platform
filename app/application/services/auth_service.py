@@ -23,7 +23,7 @@ class AuthService:
             return None
         
         # Check if the provided password matches the stored Argon2 hash
-        if verify_password(password, user.password):
+        if verify_password(password, user.hashed_password):
             return user
             
         return None
