@@ -207,7 +207,6 @@ class UserRegistrationService:
         
         hashed_password = hash_password(request_data.password)
         
-        
         user_entity = User(
             user_id=None,  # ID será gerado
             email=request_data.email,

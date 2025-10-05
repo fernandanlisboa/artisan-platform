@@ -8,8 +8,7 @@ class UserEntity(ABC):
         self.hashed_password = hashed_password
         self.status = status
         self.address_id = address_id 
-        if registration_date is None:
-            self.registration_date = datetime.now(timezone.utc)
+        self.registration_date = registration_date if registration_date is not None else datetime.now(timezone.utc)
 
     @classmethod
     def from_db_model(cls, db_model):
