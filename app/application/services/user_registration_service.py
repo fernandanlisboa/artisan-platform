@@ -151,7 +151,7 @@ class UserRegistrationService:
         user_entity = User(
             user_id=None,  # ID será gerado
             email=request_data.email,
-            password=hashed_password,
+            hashed_password=hashed_password,
             status='active',  # Status do usuário, pode ser 'active', 'inactive', etc.
             address_id=saved_address.address_id,  # Inicialmente None, será atualizado após salvar o endereço
         )
@@ -211,7 +211,7 @@ class UserRegistrationService:
         user_entity = User(
             user_id=None,  # ID será gerado
             email=request_data.email,
-            password=hashed_password,
+            hashed_password=hashed_password,
             status='active',  # Status do usuário, pode ser 'active', 'inactive', etc.
             address_id=saved_address.address_id,  # Inicialmente None, será atualizado após salvar o endereço
         )

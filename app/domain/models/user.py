@@ -2,23 +2,21 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from datetime import datetime
 class UserEntity(ABC):
-    def __init__(self, email, password, status, user_id: Optional[str] = None, address_id: Optional[str] = None, registration_date: Optional[datetime] = None):
+    def __init__(self, email, hashed_password, status, user_id: Optional[str] = None, address_id: Optional[str] = None, registration_date: Optional[datetime] = None):
         self.user_id = user_id
         self.email = email
-        self.password = password # Aqui seria a senha limpa, antes do hash
+        self.hashed_password = hashed_password
         self.status = status
         self.address_id = address_id 
         if registration_date is not None:
             self.registration_date = datetime.utcnow()
-        # Hash the password during entity creation
-        # self.password_hash = self._hash_password(password)
     
     @classmethod
     def from_db_model(cls, db_model):
         return cls(
             user_id=db_model.user_id,
             email=db_model.email,
-            password=db_model.password_hash,
+            hashed_password=db_model.hashed_password,
             status=db_model.status,
             address_id=db_model.address_id
         )
