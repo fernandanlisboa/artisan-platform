@@ -1,12 +1,24 @@
 # run.py
-from app import create_app
+import uvicorn
 import os
+from dotenv import load_dotenv
 
-# O Gunicorn vai procurar por esta variável 'app' por padrão.
+# Carregar variáveis de ambiente
+load_dotenv()
+
+# Configurar banco de dados ANTES de criar a aplicação
+db_url = os.getenv("DATABASE_URL")
+
+# Setup database
+from app.extensions import setup_db
+db_config = setup_db(db_url)
+
+# Only import models after DB setup
+from app.infrastructure.persistence.models_db import *
+
+# Criar aplicação DEPOIS de configurar o banco
+from app import create_app
 app = create_app()
 
-# O bloco abaixo agora será usado apenas para desenvolvimento local
-# e será ignorado pelo Gunicorn no contêiner.
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port, debug=True) # nosec B104
+if __name__ == "__main__":
+    uvicorn.run("run:app", host="0.0.0.0", port=8000, reload=True)
