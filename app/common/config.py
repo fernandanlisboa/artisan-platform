@@ -1,8 +1,10 @@
 import os
+from datetime import timedelta
+
 class Config:
     """Configuração base, com valores padrão."""
     # Chave secreta para segurança da sessão e outros recursos do Flask
-    SECRET_KEY = os.getenv('FLASK_SECRET_KEY', 'uma-chave-secreta-padrao-para-emergencias')
+    SECRET_KEY = os.getenv('API_SECRET_KEY', 'uma-chave-secreta-padrao-para-emergencias')
     
     # Configurações do SQLAlchemy
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -11,6 +13,12 @@ class Config:
     JSON_AS_ASCII = False
     DEBUG = False
     TESTING = False
+
+    # JWT Configuration
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'fallback-secret-key-change-in-production'
+    JWT_ALGORITHM = os.environ.get('JWT_ALGORITHM') or 'HS256'
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRE_MINUTES') or 30)
+    JWT_REFRESH_TOKEN_EXPIRE_DAYS = int(os.environ.get('JWT_REFRESH_TOKEN_EXPIRE_DAYS') or 7)
 
 class DevelopmentConfig(Config):
     """Configuração para o ambiente de desenvolvimento local."""
