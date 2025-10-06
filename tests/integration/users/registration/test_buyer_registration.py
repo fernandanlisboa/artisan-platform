@@ -175,47 +175,26 @@ class TestBuyerRegistrationIntegration:
         """Verifica se a API rejeita emails com formato inválido."""
         # Arrange - Teste com diversos formatos inválidos
         invalid_emails = [
-            "plainaddress",       # Sem @ e domínio
-            "@missinglocal.org",  # Sem parte local
-            "user@.com",          # Domínio inválido
-            "user@domain",        # Sem TLD
+            "plainaddress",
+            "@missinglocal.org",
+            "user@.com",
+            "user@domain",
             "a" * 65 + "@example.com"  # Parte local muito longa
         ]
         
         for invalid_email in invalid_emails:
             # Modifica o email para um formato inválido
             valid_buyer_data['email'] = invalid_email
-            if invalid_email == "a" * 65 + "@example.com":
-                print("x")
-            # Act - Faz a requisição para a API
+            
+            # Act - Faz a requisição para a API usando FastAPI TestClient
             response = client.post(
                 '/api/auth/register/buyer',
-                json=valid_buyer_data,
-                content_type='application/json'
+                json=valid_buyer_data,  # TestClient converte para JSON automaticamente
             )
             
-            # Assert - Verifica se foi rejeitado corretamente
-            assert response.status_code == 400, f"Email {invalid_email} deveria ser rejeitado"
-            data = json.loads(response.data)
-            error_found = False
-        
-            # Procura o erro em diferentes locais e formatos possíveis
-            if "Invalid email format" in str(data):
-                error_found = True  # Mensagem do serviço
-            elif "email" in str(data.get('errors', '')):
-                error_found = True  # Erro de campo específico
-            elif "value_error.email" in str(data):
-                error_found = True  # Erro de validação do Pydantic
-            elif any("email" in str(detail).lower() for detail in data.get('details', [])):
-                error_found = True  # Detalhes do erro (Flask-RESTx)
-            elif "value is not a valid email" in str(data):
-                error_found = True  # Mensagem de erro do Pydantic
-            elif 'Input payload validation failed' in str(data):
-                error_found = True  # Mensagem padrão do Pydantic v2
-            elif "value_error" in str(data) and "email" in str(data):
-                error_found = True  # Combinação de termos
-                
-            assert error_found, f"Mensagem de erro para {invalid_email} não contém referência ao email. Resposta: {data}"
+            # Assert
+            assert response.status_code == 422  # FastAPI retorna 422 para validação falha, não 400
+            assert "email" in response.json()["detail"][0]["loc"]  # Formato diferente do erro do FastAPI
             
             # Verifica que nenhum usuário foi criado com este email
             from app.infrastructure.persistence.models_db.user_db_model import UserDBModel
