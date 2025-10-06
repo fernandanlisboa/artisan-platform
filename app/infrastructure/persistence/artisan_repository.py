@@ -1,5 +1,5 @@
 from app.domain.repositories.artisan_repository_interface import IArtisanRepository
-from app import db
+from app.extensions import SessionLocal
 from app.domain.models.artisan import ArtisanEntity
 from app.infrastructure.persistence.models_db.artisan_db_model import ArtisanDBModel
 
@@ -21,12 +21,18 @@ class ArtisanRepository(IArtisanRepository):
         )
         
         print("Artisan DB Model: ", artisan_db_model)
+        session = SessionLocal()
         try:
-            db.session.add(artisan_db_model)
-            db.session.commit()
+            session.add(artisan_db_model)
+            session.commit()
+            # Update entity with generated ID if needed
+            artisan_entity.artisan_id = artisan_db_model.artisan_id
         except Exception as e:
             print(f"Error saving artisan: {e}")
-            db.session.rollback()
+            session.rollback()
+            raise
+        finally:
+            session.close()
         
         print("Artisan Entity after save: ", artisan_entity)
         return artisan_entity # Retorna a entidade pura que foi salva
@@ -36,9 +42,12 @@ class ArtisanRepository(IArtisanRepository):
         Retrieves an Artisan entity by its ID.
         Converts the ORM model to a pure domain entity.
         """
-        artisan_db_model = ArtisanDBModel.query.get(artisan_id)
-        
-        if artisan_db_model:
-            return ArtisanEntity.from_db_model(artisan_db_model)
-
-        return None
+        session = SessionLocal()
+        try:
+            artisan_db_model = session.get(ArtisanDBModel, artisan_id)
+            
+            if artisan_db_model:
+                return ArtisanEntity.from_db_model(artisan_db_model)
+            return None
+        finally:
+            session.close()

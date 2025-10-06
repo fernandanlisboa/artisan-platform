@@ -2,7 +2,7 @@
 from app.domain.repositories.category_repository_interface import ICategoryRepository
 from app.domain.models.category import CategoryEntity
 from app.infrastructure.persistence.models_db.category_db_model import CategoryDBModel
-from app import db
+from app.extensions import SessionLocal
 from typing import Optional
 
 class CategoryRepository(ICategoryRepository):
@@ -18,21 +18,27 @@ class CategoryRepository(ICategoryRepository):
         Creates a new Category in the database and converts it to a pure domain entity.
         """
         category_db_model = CategoryDBModel.from_entity(category)
+        session = SessionLocal()
         try:
-            db.session.add(category_db_model)
-            db.session.commit()
+            session.add(category_db_model)
+            session.commit()
+            return CategoryEntity.from_db_model(category_db_model)
         except Exception as e:
             print(f"Error saving category: {e}")
-            db.session.rollback()
+            session.rollback()
             raise
-
-        return CategoryEntity.from_db_model(category_db_model)
+        finally:
+            session.close()
     
     def get_by_id(self, category_id: str) -> Optional[CategoryEntity]:
         """
         Gets a Category by ID and converts it to a pure domain entity.
         """
-        category_db_model = CategoryDBModel.query.get(category_id)
-        if category_db_model:
-            return CategoryEntity.from_db_model(category_db_model)
-        return None
+        session = SessionLocal()
+        try:
+            category_db_model = session.get(CategoryDBModel, category_id)
+            if category_db_model:
+                return CategoryEntity.from_db_model(category_db_model)
+            return None
+        finally:
+            session.close()

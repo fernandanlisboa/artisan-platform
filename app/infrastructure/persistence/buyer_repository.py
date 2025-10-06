@@ -1,6 +1,5 @@
 from app.domain.repositories.buyer_repository_interface import IBuyerRepository
-from app import db
-
+from app.extensions import SessionLocal
 from app.infrastructure.persistence.models_db.buyer_db_model import BuyerDBModel
 
 class BuyerRepository(IBuyerRepository):
@@ -20,12 +19,18 @@ class BuyerRepository(IBuyerRepository):
         )
         
         print("Buyer DB Model: ", buyer_db_model)
+        session = SessionLocal()
         try:
-            db.session.add(buyer_db_model)
-            db.session.commit()
+            session.add(buyer_db_model)
+            session.commit()
+            # Update entity with generated ID if needed
+            buyer_entity.buyer_id = buyer_db_model.buyer_id
         except Exception as e:
             print(f"Error saving buyer: {e}")
-            db.session.rollback()
+            session.rollback()
+            raise
+        finally:
+            session.close()
         
         print("Buyer Entity after save: ", buyer_entity)
-        return buyer_entity # Retorna a entidade pura que foi salva
+        return buyer_entity  # Retorna a entidade pura que foi salva

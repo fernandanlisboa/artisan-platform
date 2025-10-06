@@ -2,7 +2,7 @@
 from app.domain.repositories.address_repository_interface import IAddressRepository
 from app.infrastructure.persistence.models_db.address_db_model import AddressDBModel
 from app.domain.models.address import AddressEntity as Address # Importa a entidade de domínio pura Address
-from app import db # Acesso à instância global do SQLAlchemy
+from app.extensions import SessionLocal
 from typing import Optional
 
 class AddressRepository(IAddressRepository):
@@ -24,30 +24,40 @@ class AddressRepository(IAddressRepository):
             zip_code=address_entity.zip_code
         )
         print("Address DB Model: ", address_db_model)
+        session = SessionLocal()
         try:
-            db.session.add(address_db_model)
-            db.session.commit()
+            session.add(address_db_model)
+            session.commit()
+            address_entity.address_id = address_db_model.address_id  # Atualiza o ID da entidade pura com o ID gerado pelo banco
         except Exception as e:
             print(f"Error saving address: {e}")
-            db.session.rollback()
+            session.rollback()
             raise
+        finally:
+            session.close()
         
-        address_entity.address_id = address_db_model.address_id  # Atualiza o ID da entidade pura com o ID gerado pelo banco
         print("Address Entity after save: ", address_entity)
         return address_entity # Retorna a entidade pura que foi salva
     
-    def get_by_id(self, address_id: str) -> Optional[Address]: # Retorna Entidade de Domínio Pura
+    def get_by_id(self, address_id: str) -> Optional[Address]:
         """Gets an Address by ID and converts it to a pure domain entity."""
-        address_db_model = AddressDBModel.query.get(address_id)
-        if address_db_model:
-            return Address.from_db_model(address_db_model)
-        return None
+        session = SessionLocal()
+        try:
+            address_db_model = session.get(AddressDBModel, address_id)
+            if address_db_model:
+                return Address.from_db_model(address_db_model)
+            return None
+        finally:
+            session.close()
     
     def get_by_attributes(self, address_entity: Address) -> Optional[Address]:
         """Gets an Address entity by its attributes."""
         filter_criteria = address_entity.to_filter_dict()
-        query = AddressDBModel.query.filter_by(**filter_criteria)
-        address_db_model = query.first()
-        if address_db_model:
-            return Address.from_db_model(address_db_model)
-        return None
+        session = SessionLocal()
+        try:
+            address_db_model = session.query(AddressDBModel).filter_by(**filter_criteria).first()
+            if address_db_model:
+                return Address.from_db_model(address_db_model)
+            return None
+        finally:
+            session.close()
