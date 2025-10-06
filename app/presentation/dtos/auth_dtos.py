@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Optional
 
 
@@ -11,7 +11,7 @@ class LoginRequest(BaseModel):
         arbitrary_types_allowed=True  # Allow arbitrary types
     )
     
-    email: str = Field(..., description="User email for login")
+    email: EmailStr = Field(..., description="User email for login")
     password: str = Field(..., description="User password for login")
     
 class LoginResponse(BaseModel):
@@ -25,4 +25,7 @@ class LoginResponse(BaseModel):
     
     user_id: str = Field(..., description="ID of the authenticated user")
     email: str = Field(..., description="Email of the authenticated user")
-    token: Optional[str] = Field(None, description="Authentication token (e.g., JWT)")
+    access_token: str = Field(..., description="Access token for the authenticated user")
+    refresh_token: str = Field(..., description="Refresh token for the authenticated user")
+    token_type: str = Field("Bearer", description="Type of the token")
+    expires_in: int = Field(..., description="Expiration time of the token in seconds")
