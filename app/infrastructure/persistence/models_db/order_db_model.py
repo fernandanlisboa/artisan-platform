@@ -1,27 +1,29 @@
 # app/infrastructure/persistence/models_db/order_db_model.py
-from app import db
+from app.extensions import Base
+from sqlalchemy import Numeric, DateTime, Column, String, Text, ForeignKey
+
 import uuid
 import datetime
 from sqlalchemy.orm import relationship
 
-class OrderDBModel(db.Model):
+class OrderDBModel(Base):
     __tablename__ = 'orders'
 
-    order_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    order_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    order_status = db.Column(db.String(50), nullable=False, default='pending') # Ex: 'pending', 'processing', 'shipped', 'delivered', 'canceled'
-    total_value = db.Column(db.Numeric(10, 2), nullable=False)
-    
+    order_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    order_date = Column(DateTime, default=datetime.datetime.utcnow)
+    order_status = Column(String(50), nullable=False, default='pending') # Ex: 'pending', 'processing', 'shipped', 'delivered', 'canceled'
+    total_value = Column(Numeric(10, 2), nullable=False)
+
     # The diagram shows 'delivery_address' as a direct field, not FK to Address
     # Assuming it's a string for this specific order
-    delivery_address_id = db.Column(db.String(36), db.ForeignKey('addresses.address_id'), unique=True, nullable=True, name='address_id')
-    delivery_address = relationship('AddressDBModel') 
+    delivery_address_id = Column(String(36), ForeignKey('addresses.address_id'), unique=True, nullable=True, name='address_id')
+    delivery_address = relationship('AddressDBModel')
 
-    payment_method = db.Column(db.String(50), nullable=False)
-    gateway_transaction_id = db.Column(db.String(255), nullable=True)
+    payment_method = Column(String(50), nullable=False)
+    gateway_transaction_id = Column(String(255), nullable=True)
 
     # Foreign Key
-    buyer_id = db.Column(db.String(36), db.ForeignKey('buyers.buyer_id'), nullable=False)
+    buyer_id = Column(String(36), ForeignKey('buyers.buyer_id'), nullable=False)
 
     # Relationships
     buyer = relationship('BuyerDBModel', back_populates='orders')

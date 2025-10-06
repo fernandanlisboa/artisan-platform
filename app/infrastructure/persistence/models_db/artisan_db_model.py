@@ -1,16 +1,17 @@
 # app/infrastructure/persistence/models_db/artisan_db_model.py
-from app import db
-import datetime
+from app.extensions import Base
+from sqlalchemy import Column, String, Text, ForeignKey
 from sqlalchemy.orm import relationship
+import datetime
 
-class ArtisanDBModel(db.Model):
+class ArtisanDBModel(Base):
     __tablename__ = 'artisans'
 
-    artisan_id = db.Column(db.String(36), db.ForeignKey('users.user_id'), primary_key=True) # PK is also FK
-    store_name = db.Column(db.String(255), nullable=False)
-    bio = db.Column(db.Text, nullable=True)
-    phone = db.Column(db.String(20), nullable=True)
-    status = db.Column(db.String(20), nullable=False, default='active') # Ex: 'active', 'pending', 'suspended'
+    artisan_id = Column(String(36), ForeignKey('users.user_id'), primary_key=True) # PK is also FK
+    store_name = Column(String(255), nullable=False)
+    bio = Column(Text, nullable=True)
+    phone = Column(String(20), nullable=True)
+    status = Column(String(20), nullable=False, default='active') # Ex: 'active', 'pending', 'suspended'
 
     user = relationship('UserDBModel', back_populates='artisan')
     products = relationship('ProductDBModel', back_populates='artisan')

@@ -1,20 +1,21 @@
 # app/infrastructure/persistence/models_db/review_db_model.py
-from app import db
+from app.extensions import Base
+from sqlalchemy import Integer, Column, DateTime, String, Text, ForeignKey
 import uuid
 import datetime
 from sqlalchemy.orm import relationship
 
-class ReviewDBModel(db.Model):
+class ReviewDBModel(Base):
     __tablename__ = 'reviews'
 
-    review_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    rating = db.Column(db.Integer, nullable=False) # 1 to 5
-    comment = db.Column(db.Text, nullable=True)
-    review_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    review_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    rating = Column(Integer, nullable=False) # 1 to 5
+    comment = Column(Text, nullable=True)
+    review_date = Column(DateTime, default=datetime.datetime.utcnow)
 
     # Foreign Keys
-    buyer_id = db.Column(db.String(36), db.ForeignKey('buyers.buyer_id'), nullable=False)
-    product_id = db.Column(db.String(36), db.ForeignKey('products.product_id'), nullable=False)
+    buyer_id = Column(String(36), ForeignKey('buyers.buyer_id'), nullable=False)
+    product_id = Column(String(36), ForeignKey('products.product_id'), nullable=False)
 
     # Relationships
     buyer = relationship('BuyerDBModel', back_populates='reviews')

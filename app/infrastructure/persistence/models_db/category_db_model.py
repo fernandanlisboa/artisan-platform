@@ -1,14 +1,16 @@
 # app/infrastructure/persistence/models_db/category_db_model.py
-from app import db
-import uuid
+# app/infrastructure/persistence/models_db/artisan_db_model.py
+from app.extensions import Base
+from sqlalchemy import Column, String, Text, ForeignKey
 from sqlalchemy.orm import relationship
+import uuid
 
-class CategoryDBModel(db.Model):
+class CategoryDBModel(Base):
     __tablename__ = 'categories'
 
-    category_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = db.Column(db.String(100), unique=True, nullable=False)
-    description = db.Column(db.String(255), nullable=True)
+    category_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String(100), unique=True, nullable=False)
+    description = Column(String(255), nullable=True)
 
     products = relationship('ProductDBModel', back_populates='category')
     

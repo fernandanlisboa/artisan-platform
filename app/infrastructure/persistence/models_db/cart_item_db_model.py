@@ -1,22 +1,23 @@
-from app import db
+from app.extensions import Base
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 import uuid
 
-from sqlalchemy.orm import relationship
 
-class CartItemDBModel(db.Model):
+class CartItemDBModel(Base):
     __tablename__ = 'cart_items'
 
     # Colunas da tabela
-    cart_item_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    quantity = db.Column(db.Integer, nullable=False, default=1)
+    cart_item_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    quantity = Column(Integer, nullable=False, default=1)
     
     # Chave Estrangeira que aponta para o ID do carrinho ao qual este item pertence.
     # Este é o elo que estabelece a relação.
-    cart_id = db.Column(db.String(36), db.ForeignKey('carts.cart_id'), nullable=False)
+    cart_id = Column(String(36), ForeignKey('carts.cart_id'), nullable=False)
     
     # Chave Estrangeira que aponta para o ID do produto que foi adicionado.
-    product_id = db.Column(db.String(36), db.ForeignKey('products.product_id'), nullable=False)
+    product_id = Column(String(36), ForeignKey('products.product_id'), nullable=False)
     
     # --- RELACIONAMENTOS ---
 
