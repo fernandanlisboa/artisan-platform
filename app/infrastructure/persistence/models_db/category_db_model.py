@@ -1,9 +1,8 @@
-# app/infrastructure/persistence/models_db/category_db_model.py
-# app/infrastructure/persistence/models_db/artisan_db_model.py
 from app.extensions import Base
 from sqlalchemy import Column, String, Text, ForeignKey
 from sqlalchemy.orm import relationship
 import uuid
+
 
 class CategoryDBModel(Base):
     __tablename__ = 'categories'
