@@ -40,17 +40,13 @@ class AuthController:
             login_request=login_data
         )
         
-        if not user:
+        if user:
+            return user
+        else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
             )
-        
-        # Aqui você adicionaria a lógica para criar tokens JWT
-        # ou outras informações de sessão
-        
-        return user
-
 
 # Instanciar o controller para exportar o router
 auth_controller = AuthController()
