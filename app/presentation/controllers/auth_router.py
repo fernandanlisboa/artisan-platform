@@ -37,8 +37,7 @@ class AuthController:
     ):
         """Login endpoint para autenticação de usuários."""
         user = service.authenticate_user(
-            email=login_data.email, 
-            password=login_data.password
+            login_request=login_data
         )
         
         if not user:
@@ -50,13 +49,9 @@ class AuthController:
         # Aqui você adicionaria a lógica para criar tokens JWT
         # ou outras informações de sessão
         
-        return LoginResponse(
-            user_id=user.user_id,
-            email=user.email
-        )
+        return user
 
 
 # Instanciar o controller para exportar o router
 auth_controller = AuthController()
 auth_router = auth_controller.router
-
