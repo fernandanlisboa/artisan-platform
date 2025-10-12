@@ -5,7 +5,7 @@ from datetime import timedelta
 class Config:
     """Configuração base, com valores padrão."""
     # Chave secreta para segurança da sessão e outros recursos
-    SECRET_KEY = os.getenv('API_SECRET_KEY', 'uma-chave-secreta-padrao-para-emergencias')
+    SECRET_KEY = os.getenv('API_SECRET_KEY', 'default-secret-key-for-emergencies')
     
     # Configurações do SQLAlchemy
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -15,7 +15,7 @@ class Config:
     DEBUG = False
     TESTING = False
     
-    # JWT Configuration - ADICIONADO
+    # JWT Configuration
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'fallback-secret-key-change-in-production'
     JWT_ALGORITHM = os.environ.get('JWT_ALGORITHM') or 'HS256'
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRE_MINUTES') or 30)
@@ -41,16 +41,15 @@ class TestingConfig(Config):
     else:
         SQLALCHEMY_DATABASE_URI = os.getenv('TEST_DATABASE_URL')
     
-    print("teste env")
+    print("test env")
     print(SQLALCHEMY_DATABASE_URI)
     CHECK_DB_CONNECTION_ON_STARTUP = 'False'
     
-    # JWT Configuration for testing - ADICIONADO
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'secret'
-    JWT_ALGORITHM = os.environ.get('JWT_ALGORITHM') or 'HS256'
-    JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRE_MINUTES') or 30)
-    JWT_REFRESH_TOKEN_EXPIRE_DAYS = int(os.environ.get('JWT_REFRESH_TOKEN_EXPIRE_DAYS') or 7)
-
+    # JWT Configuration for testing - OVERRIDE for specific test values
+    JWT_SECRET_KEY = 'test-jwt-secret-key-for-testing'
+    JWT_ALGORITHM = 'HS256' 
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    JWT_REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 
 class ProductionConfig(Config):

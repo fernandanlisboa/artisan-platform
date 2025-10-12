@@ -7,23 +7,23 @@ security = HTTPBearer()
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """
-    Dependency para extrair e validar o usuário atual do token JWT.
+    Dependency to extract and validate current user from JWT token.
     
     Args:
-        credentials: Credenciais HTTP Bearer
+        credentials: HTTP Bearer credentials
         
     Returns:
-        dict: Payload do token com informações do usuário
+        dict: Token payload with user information
         
     Raises:
-        HTTPException: Se o token for inválido ou expirado
+        HTTPException: If token is invalid or expired
     """
     token = credentials.credentials
     
     try:
         payload = JWTManager.decode_token(token)
         
-        # Verificar se é um token de acesso
+        # Check if it's an access token
         if payload.get('type') != 'access':
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
