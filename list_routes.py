@@ -1,7 +1,7 @@
 import os
 
 # Definir ambiente antes de importar a aplicação
-os.environ['FLASK_ENV'] = 'testing'
+os.environ['API_ENV'] = 'testing'
 
 from app import create_app
 

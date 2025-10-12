@@ -15,12 +15,12 @@ def setup_test_database():
     load_dotenv(env_file, override=True)
     
     # Define explicitamente a variável de ambiente para teste
-    os.environ['FLASK_ENV'] = 'testing'
+    os.environ['API_ENV'] = 'testing'
     
     # Imprime as variáveis para debug
     test_db_url = os.environ.get('DATABASE_URL')
     print(f"Usando banco de teste: {test_db_url}")
-    print(f"FLASK_ENV: {os.environ.get('FLASK_ENV')}")
+    print(f"API_ENV: {os.environ.get('API_ENV')}")
     
     # Executa o upgrade do Alembic
     try:
