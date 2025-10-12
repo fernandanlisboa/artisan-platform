@@ -1,26 +1,27 @@
 # app/infrastructure/persistence/models_db/user_db_model.py
 from typing import Any
-from app import db
+from app.extensions import Base
+from sqlalchemy import Column, String, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy.orm import relationship # Import 'backref' for inverse relationships
 
 
-class UserDBModel(db.Model):
+class UserDBModel(Base):
     """
     Database model for the User entity.
     Maps to the 'users' table in MySQL as per the diagram.
     """
     __tablename__ = 'users' 
 
-    user_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()), name='user_id') # PK as per diagram
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    hashed_password = db.Column(db.String(255), nullable=False, name='password') # Stores password hash, original name 'senha'
-    registration_date = db.Column(db.DateTime, default=datetime.now(timezone.utc), name='registration_date') # Original name 'data_cadastro'
-    status = db.Column(db.String(20), nullable=False, default='active') # E.g., 'active', 'inactive', 'pending'
+    user_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), name='user_id') # PK as per diagram
+    email = Column(String(120), unique=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False, name='password') # Stores password hash, original name 'senha'
+    registration_date = Column(DateTime, default=datetime.now(timezone.utc), name='registration_date') # Original name 'data_cadastro'
+    status = Column(String(20), nullable=False, default='active') # E.g., 'active', 'inactive', 'pending'
 
     # Foreign Key to Address (a user can have a primary address)
-    address_id = db.Column(db.String(36), db.ForeignKey('addresses.address_id'), unique=False, nullable=True, name='address_id') # FK as per diagram
+    address_id = Column(String(36), ForeignKey('addresses.address_id'), unique=False, nullable=True, name='address_id') # FK as per diagram
     
     # Relationship with AddressDBModel
     # 'uselist=False' implies a one-to-one or one-to-many from Address's perspective (one Address object for this User)

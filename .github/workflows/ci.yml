@@ -50,7 +50,7 @@ jobs:
     - name: Configure test environment
       run: |
         cp .env.example .env
-        echo "FLASK_ENV=testing" >> .env
+        echo "API_ENV=testing" >> .env
         echo "DATABASE_URL=mysql+mysqlconnector://root:${{ secrets.DB_PASSWORD }}@127.0.0.1:3306/artisan_test" >> .env
         echo "FLASK_SECRET_KEY=testing-key-for-ci" >> .env
     
@@ -101,7 +101,7 @@ jobs:
 
     - name: Start Flask application in background
       env:
-        FLASK_ENV: development
+        API_ENV: development
         DATABASE_URL: "sqlite:///dast_test.db" 
         FLASK_APP: app
         FLASK_SECRET_KEY: "dast-key"

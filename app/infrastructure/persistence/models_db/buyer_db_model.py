@@ -1,13 +1,14 @@
 # app/infrastructure/persistence/models_db/buyer_db_model.py
-from app import db
+from app.extensions import Base
+from sqlalchemy import Column, String, ForeignKey  
 from sqlalchemy.orm import relationship
 
-class BuyerDBModel(db.Model):
+class BuyerDBModel(Base):
     __tablename__ = 'buyers'
 
-    buyer_id = db.Column(db.String(36), db.ForeignKey('users.user_id'), primary_key=True) # PK is also FK
-    full_name = db.Column(db.String(255), nullable=False)
-    phone = db.Column(db.String(20), nullable=True)
+    buyer_id = Column(String(36), ForeignKey('users.user_id'), primary_key=True) # PK is also FK
+    full_name = Column(String(255), nullable=False)
+    phone = Column(String(20), nullable=True)
 
     user = relationship('UserDBModel', back_populates='buyer')
     orders = relationship('OrderDBModel', back_populates='buyer')

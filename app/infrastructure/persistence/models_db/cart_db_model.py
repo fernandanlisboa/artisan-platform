@@ -1,9 +1,10 @@
-from app import db
+from app.extensions import Base
+from sqlalchemy import Column, String, DateTime, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import uuid
 
-class CartDBModel(db.Model):
+class CartDBModel(Base):
     """
     Modelo ORM para a tabela 'carts'.
     Representa o carrinho de compras de um usuário.
@@ -11,16 +12,16 @@ class CartDBModel(db.Model):
     __tablename__ = 'carts'
 
     # Colunas da tabela
-    cart_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    cart_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     
     # Chave Estrangeira para o usuário.
     # Um usuário tem um carrinho, então a relação é única.
-    buyer_id = db.Column(db.String(36), db.ForeignKey('buyers.buyer_id'), nullable=False)
+    buyer_id = Column(String(36), ForeignKey('buyers.buyer_id'), nullable=False)
     
     # Timestamps para controle
-    # server_default é executado pelo próprio banco de dados, o que é ótimo para consistência.
-    created_at = db.Column(db.DateTime, server_default=func.now())
-    updated_at = db.Column(db.DateTime, server_default=func.now(), onupdate=func.now())
+    # server_default é executado pelo próprio banco de dados
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # --- RELACIONAMENTOS ---
     
