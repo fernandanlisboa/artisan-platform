@@ -19,8 +19,8 @@ Key design patterns include the Repository pattern for data access abstraction a
 
 *   **Programming Language:** Python
 *   **Web Framework:** Flask
-*   **API Framework:** Flask-RESTx
-*   **Database:** MySQL, PostgreSQL, SQLite (for testing)
+*   **API Framework:** FastAPI
+*   **Database:** MySQL, SQLite (for testing)
 *   **ORM:** SQLAlchemy
 *   **Data Validation:** Pydantic
 *   **Database Migrations:** Alembic
